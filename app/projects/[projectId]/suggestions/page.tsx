@@ -6,28 +6,26 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 
 const projects = ['xyz', 'abc', '123'];
 
-export default function Home() {
+const SuggestionsPage = () => {
   return (
     <>
-      <h1 className="mb-6 text-2xl">Projects</h1>
+      <h1 className="mb-6 text-xl">Change Suggestions</h1>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col gap-6">
         {projects.map((project) => (
-          <Card key={project} className="w-72">
+          <Card key={project} className="w-full">
             <CardHeader>
-              <CardTitle>Project {project.toUpperCase()}</CardTitle>
-              <CardDescription>
-                Project {project.toUpperCase()} Description
-              </CardDescription>
+              <CardDescription>Do this and that</CardDescription>
             </CardHeader>
             <CardFooter>
               <Button asChild>
-                <Link href={`/projects/${project}`}>View</Link>
+                <Link href={`/projects/${project}/suggestions/${project}`}>
+                  View
+                </Link>
               </Button>
             </CardFooter>
           </Card>
@@ -35,4 +33,6 @@ export default function Home() {
       </div>
     </>
   );
-}
+};
+
+export default SuggestionsPage;
