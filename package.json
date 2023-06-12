@@ -10,6 +10,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@planetscale/database": "^1.7.0",
     "@radix-ui/react-avatar": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@types/node": "20.3.0",
@@ -18,6 +19,8 @@
     "autoprefixer": "10.4.14",
     "class-variance-authority": "^0.6.0",
     "clsx": "^1.2.1",
+    "diff": "^5.1.0",
+    "drizzle-orm": "^0.26.5",
     "eslint": "8.42.0",
     "eslint-config-next": "13.4.5",
     "lucide-react": "^0.242.0",
@@ -33,6 +36,9 @@
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
+    "@types/diff": "^5.0.3",
+    "dotenv": "^16.1.4",
+    "drizzle-kit": "^0.18.1",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.3.0"
   }

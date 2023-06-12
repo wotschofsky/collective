@@ -1,7 +1,9 @@
+import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 import type { FC } from 'react';
 
 import { Button } from '@/components/ui/button';
+import db, { projects } from '@/lib/db';
 
 const paragraphs = [
   'In labore culpa id dolor tempor labore est magna ad nisi labore. Amet consequat esse ad laborum tempor proident pariatur. Qui sunt Lorem dolor aliqua in cillum nulla id occaecat aliqua amet elit quis nisi aliquip. Ea aute tempor consequat in. Culpa in nulla fugiat laborum amet culpa sunt anim occaecat officia.',
@@ -17,9 +19,14 @@ type ProjectEditPageProps = {
   };
 };
 
-const ProjectEditPage: FC<ProjectEditPageProps> = ({
+const ProjectEditPage: FC<ProjectEditPageProps> = async ({
   params: { projectId },
 }) => {
+  const project = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.id, Number(projectId)));
+
   return (
     <>
       <div className="mb-4 flex gap-2">
@@ -32,11 +39,7 @@ const ProjectEditPage: FC<ProjectEditPageProps> = ({
       </div>
 
       <div className="flex flex-col items-center">
-        {paragraphs.map((paragraph) => (
-          <p key={paragraph} className="w-xl mb-6">
-            {paragraph}
-          </p>
-        ))}
+        <p className="mb-6 max-w-xl whitespace-pre-line">{project[0].state}</p>
       </div>
     </>
   );

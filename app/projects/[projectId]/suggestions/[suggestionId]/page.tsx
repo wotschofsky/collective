@@ -1,12 +1,12 @@
-import type { FC } from 'react';
+import * as Diff from 'diff';
+import { eq } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
+import { notFound } from 'next/navigation';
+import type { FC, ReactNode } from 'react';
 
-const paragraphs = [
-  'In labore culpa id dolor tempor labore est magna ad nisi labore. Amet consequat esse ad laborum tempor proident pariatur. Qui sunt Lorem dolor aliqua in cillum nulla id occaecat aliqua amet elit quis nisi aliquip. Ea aute tempor consequat in. Culpa in nulla fugiat laborum amet culpa sunt anim occaecat officia.',
-  'Esse voluptate culpa voluptate ea enim laboris fugiat enim. Id laboris duis adipisicing laboris ea id tempor Lorem quis nisi voluptate pariatur. Ut excepteur ex Lorem deserunt id. Non amet sint dolor nostrud Lorem quis fugiat tempor ad. Lorem quis sit consequat laborum adipisicing proident ut et irure reprehenderit adipisicing incididunt occaecat eu. Ullamco ut cillum et do exercitation ipsum non reprehenderit. Laboris ullamco culpa enim do duis occaecat consectetur. Adipisicing sunt proident ad do anim nisi officia pariatur.',
-  'Ad qui labore laborum ea sit nisi pariatur officia est ea excepteur laboris voluptate est fugiat. Nostrud fugiat magna reprehenderit officia laboris. In qui enim sunt ipsum quis eiusmod ut sit ad nostrud. Labore commodo nulla sit eu aliqua laborum ut ex quis ullamco. Id et qui ipsum. Quis deserunt proident aute nulla ex deserunt nulla ea reprehenderit.',
-  'Incididunt amet enim qui. Ipsum ea cupidatat tempor et Lorem voluptate est. Laborum aliquip exercitation magna in et non ex. Laboris elit commodo sint aliquip ad dolor ex Lorem ad proident consectetur sit anim consequat laboris. Ullamco velit aliqua ex voluptate sunt nostrud quis dolore. Proident proident proident sit in voluptate enim id in. Dolore consectetur ullamco dolore laborum aute aliquip deserunt ullamco ea amet qui. Quis velit eu occaecat velit duis enim tempor qui cillum ea ad in tempor.',
-  'Et laborum velit est nisi occaecat pariatur velit aliqua anim reprehenderit exercitation do anim consectetur mollit. Qui elit non excepteur sit cupidatat non culpa ipsum velit Lorem. Exercitation proident aliquip velit occaecat nostrud tempor mollit. Proident magna ea non adipisicing sit eiusmod eu proident dolor officia non ullamco sunt laborum. Fugiat sit enim incididunt duis et incididunt dolore laboris eiusmod elit. Do nostrud id quis.',
-];
+import { Button } from '@/components/ui/button';
+import db from '@/lib/db';
+import { changeSuggestions, projects } from '@/lib/schema';
 
 type ProjectEditPageProps = {
   params: {
@@ -15,18 +15,121 @@ type ProjectEditPageProps = {
   };
 };
 
-const ProjectEditPage: FC<ProjectEditPageProps> = ({
+const ProjectEditPage: FC<ProjectEditPageProps> = async ({
   params: { suggestionId },
 }: ProjectEditPageProps) => {
+  if (Number.isNaN(Number(suggestionId))) {
+    return notFound();
+  }
+
+  const suggestion = await db.query.changeSuggestions.findFirst({
+    where: eq(changeSuggestions.id, Number(suggestionId)),
+    with: {
+      project: true,
+    },
+  });
+
+  if (!suggestion) {
+    return notFound();
+  }
+
+  const changes = Diff.diffWords(
+    suggestion.project?.state || '',
+    suggestion.state
+  );
+
+  let originalText: ReactNode[] = [];
+  let newText: ReactNode[] = [];
+
+  for (const change of changes) {
+    if (change.removed) {
+      originalText.push(<span className="bg-red-300">{change.value}</span>);
+      continue;
+    }
+
+    if (change.added) {
+      newText.push(<span className="bg-green-300">{change.value}</span>);
+      continue;
+    }
+
+    originalText.push(change.value);
+    newText.push(change.value);
+  }
+
+  async function handleApprove() {
+    'use server';
+
+    const suggestion = await db.query.changeSuggestions.findFirst({
+      where: eq(changeSuggestions.id, Number(suggestionId)),
+    });
+
+    if (!suggestion) {
+      throw new Error('Suggestion not found');
+    }
+
+    await db.transaction(async (tx) => {
+      await tx
+        .update(projects)
+        .set({
+          state: suggestion?.state,
+        })
+        .where(eq(projects.id, suggestion!.projectId));
+      await tx
+        .update(changeSuggestions)
+        .set({
+          status: 'approved',
+        })
+        .where(eq(changeSuggestions.id, suggestion!.projectId));
+    });
+
+    revalidatePath(
+      `/projects/${suggestion.projectId}/suggestions/${suggestion.id}`
+    );
+  }
+
+  async function handleReject() {
+    'use server';
+
+    const suggestion = await db.query.changeSuggestions.findFirst({
+      where: eq(changeSuggestions.id, Number(suggestionId)),
+    });
+
+    if (!suggestion) {
+      throw new Error('Suggestion not found');
+    }
+
+    await db
+      .update(changeSuggestions)
+      .set({
+        status: 'closed',
+      })
+      .where(eq(changeSuggestions.id, suggestion!.projectId));
+
+    revalidatePath(
+      `/projects/${suggestion.projectId}/suggestions/${suggestion.id}`
+    );
+  }
+
   return (
     <>
-      <div className="flex flex-col items-center">
-        {paragraphs.map((paragraph) => (
-          <p key={paragraph} className="w-xl mb-6">
-            {paragraph}
-          </p>
-        ))}
+      <div className="mb-4">
+        <span className="mr-2 inline-block rounded-2xl bg-slate-800 p-2 text-white">
+          {suggestion.status}
+        </span>
+        <h2 className="inline text-xl">{suggestion.title}</h2>
       </div>
+
+      <div className="flex items-start gap-4">
+        <p className="flex-1 whitespace-pre-wrap">{originalText}</p>
+        <p className="flex-1 whitespace-pre-wrap">{newText}</p>
+      </div>
+
+      <form className="mt-8 flex gap-2">
+        <Button formAction={handleApprove}>Approve</Button>
+        <Button formAction={handleReject} variant="outline">
+          Reject
+        </Button>
+      </form>
     </>
   );
 };

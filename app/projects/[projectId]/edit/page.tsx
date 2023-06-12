@@ -1,16 +1,12 @@
-'use client';
-
+import { eq } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import type { FC } from 'react';
 
 import { Button } from '@/components/ui/button';
-
-const paragraphs = [
-  'In labore culpa id dolor tempor labore est magna ad nisi labore. Amet consequat esse ad laborum tempor proident pariatur. Qui sunt Lorem dolor aliqua in cillum nulla id occaecat aliqua amet elit quis nisi aliquip. Ea aute tempor consequat in. Culpa in nulla fugiat laborum amet culpa sunt anim occaecat officia.',
-  'Esse voluptate culpa voluptate ea enim laboris fugiat enim. Id laboris duis adipisicing laboris ea id tempor Lorem quis nisi voluptate pariatur. Ut excepteur ex Lorem deserunt id. Non amet sint dolor nostrud Lorem quis fugiat tempor ad. Lorem quis sit consequat laborum adipisicing proident ut et irure reprehenderit adipisicing incididunt occaecat eu. Ullamco ut cillum et do exercitation ipsum non reprehenderit. Laboris ullamco culpa enim do duis occaecat consectetur. Adipisicing sunt proident ad do anim nisi officia pariatur.',
-  'Ad qui labore laborum ea sit nisi pariatur officia est ea excepteur laboris voluptate est fugiat. Nostrud fugiat magna reprehenderit officia laboris. In qui enim sunt ipsum quis eiusmod ut sit ad nostrud. Labore commodo nulla sit eu aliqua laborum ut ex quis ullamco. Id et qui ipsum. Quis deserunt proident aute nulla ex deserunt nulla ea reprehenderit.',
-  'Incididunt amet enim qui. Ipsum ea cupidatat tempor et Lorem voluptate est. Laborum aliquip exercitation magna in et non ex. Laboris elit commodo sint aliquip ad dolor ex Lorem ad proident consectetur sit anim consequat laboris. Ullamco velit aliqua ex voluptate sunt nostrud quis dolore. Proident proident proident sit in voluptate enim id in. Dolore consectetur ullamco dolore laborum aute aliquip deserunt ullamco ea amet qui. Quis velit eu occaecat velit duis enim tempor qui cillum ea ad in tempor.',
-  'Et laborum velit est nisi occaecat pariatur velit aliqua anim reprehenderit exercitation do anim consectetur mollit. Qui elit non excepteur sit cupidatat non culpa ipsum velit Lorem. Exercitation proident aliquip velit occaecat nostrud tempor mollit. Proident magna ea non adipisicing sit eiusmod eu proident dolor officia non ullamco sunt laborum. Fugiat sit enim incididunt duis et incididunt dolore laboris eiusmod elit. Do nostrud id quis.',
-];
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import db, { changeSuggestions, projects } from '@/lib/db';
 
 type ProjectPageProps = {
   params: {
@@ -18,15 +14,59 @@ type ProjectPageProps = {
   };
 };
 
-const ProjectPage: FC<ProjectPageProps> = ({ params: { projectId } }) => {
+const ProjectPage: FC<ProjectPageProps> = async ({ params: { projectId } }) => {
+  const [project] = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.id, Number(projectId)));
+
+  async function save(data: FormData) {
+    'use server';
+
+    const title = data.get('title')?.toString();
+    const comment = data.get('comment')?.toString();
+    const content = data.get('content')?.toString();
+
+    if (!title || !content) {
+      return;
+    }
+
+    await db.insert(changeSuggestions).values({
+      title: title,
+      projectId: project.id,
+      comment: comment,
+      state: content,
+    });
+
+    revalidatePath(`/projects/${project.id}/suggestions`);
+    redirect(`/projects/${project.id}`);
+  }
+
   return (
     <>
-      <Button>Suggest Changes</Button>
+      <div className="flex justify-center">
+        <form action={save} className="w-full max-w-xl">
+          <p className="mb-8">
+            Modify the selected document below and submit it as a suggestion for
+            changes
+          </p>
 
-      <div className="flex flex-col items-center">
-        <textarea className="mb-6 h-[192rem] max-h-[75vw] w-full max-w-xl">
-          {paragraphs.join('\n\n')}
-        </textarea>
+          <Input name="title" className="mb-4" placeholder="Title" required />
+          <Input
+            name="comment"
+            className="mb-4"
+            placeholder="Comment (explanation or reasoning)"
+          />
+          <Textarea
+            name="content"
+            className="mb-4"
+            placeholder="Document Contents"
+            rows={20}
+            defaultValue={project.state || ''}
+            required
+          ></Textarea>
+          <Button type="submit">Suggest Changes</Button>
+        </form>
       </div>
     </>
   );
