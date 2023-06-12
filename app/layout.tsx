@@ -7,6 +7,10 @@ import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
+export const metadata = {
+  title: 'Collective',
+};
+
 export default function RootLayout({
   children,
 }: {
