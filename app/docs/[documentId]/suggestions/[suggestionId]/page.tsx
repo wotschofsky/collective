@@ -112,6 +112,8 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
         .where(eq(changeSuggestions.id, suggestion.id));
     });
 
+    revalidatePath(`/docs/${suggestion.documentId}`);
+    revalidatePath(`/docs/${suggestion.documentId}/suggestions`);
     revalidatePath(
       `/docs/${suggestion.documentId}/suggestions/${suggestion.id}`
     );
@@ -135,6 +137,7 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
       })
       .where(eq(changeSuggestions.id, suggestion.id));
 
+    revalidatePath(`/docs/${suggestion.documentId}/suggestions`);
     revalidatePath(
       `/docs/${suggestion.documentId}/suggestions/${suggestion.id}`
     );

@@ -43,7 +43,7 @@ const DocumentPage: FC<DocumentPageProps> = async ({
       return;
     }
 
-    await db.insert(changeSuggestions).values({
+    const suggestion = await db.insert(changeSuggestions).values({
       title: title,
       documentId: document.id,
       description: description || '',
@@ -52,7 +52,7 @@ const DocumentPage: FC<DocumentPageProps> = async ({
     });
 
     revalidatePath(`/docs/${document!.id}/suggestions`);
-    redirect(`/docs/${document!.id}`);
+    redirect(`/docs/${document!.id}/suggestions/${suggestion.insertId}`);
   }
 
   return (
