@@ -1,4 +1,5 @@
 import * as Diff from 'diff';
+import { diff_match_patch as DiffMainPatch } from 'diff-match-patch';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { notFound } from 'next/navigation';
@@ -6,7 +7,9 @@ import type { FC, ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
 import db from '@/lib/db';
-import { changeSuggestions, documents } from '@/lib/schema';
+import { changeSuggestions, documents, documentVersion } from '@/lib/schema';
+
+const dmp = new DiffMainPatch();
 
 type DocumentEditPageProps = {
   params: {
@@ -25,7 +28,7 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
   const suggestion = await db.query.changeSuggestions.findFirst({
     where: eq(changeSuggestions.id, Number(suggestionId)),
     with: {
-      document: true,
+      baseVersion: true,
     },
   });
 
@@ -33,9 +36,9 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
     return notFound();
   }
 
-  const changes = Diff.diffWords(
-    suggestion.document?.state || '',
-    suggestion.state
+  const changes = Diff.diffChars(
+    suggestion.baseVersion.content,
+    suggestion.content
   );
 
   let originalText: ReactNode[] = [];
@@ -61,25 +64,52 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
 
     const suggestion = await db.query.changeSuggestions.findFirst({
       where: eq(changeSuggestions.id, Number(suggestionId)),
+      with: {
+        baseVersion: true,
+        document: {
+          with: {
+            currentVersion: true,
+          },
+        },
+      },
     });
 
-    if (!suggestion) {
+    if (!suggestion || suggestion.status !== 'open') {
       throw new Error('Suggestion not found');
     }
 
+    if (!suggestion.document.currentVersion) {
+      throw new Error('Document version not found');
+    }
+
+    const diffs = dmp.diff_main(
+      suggestion.baseVersion.content,
+      suggestion.content
+    );
+    const patches = dmp.patch_make(suggestion.baseVersion.content, diffs);
+    const [mergedContent, _] = dmp.patch_apply(
+      patches,
+      suggestion.document.currentVersion.content
+    );
+
     await db.transaction(async (tx) => {
+      const newVersion = await tx.insert(documentVersion).values({
+        documentId: suggestion!.documentId,
+        content: mergedContent,
+        previousVersionId: suggestion!.document.currentVersionId,
+      });
       await tx
         .update(documents)
         .set({
-          state: suggestion?.state,
+          currentVersionId: Number(newVersion.insertId),
         })
-        .where(eq(documents.id, suggestion!.documentId));
+        .where(eq(documents.id, suggestion.documentId));
       await tx
         .update(changeSuggestions)
         .set({
           status: 'approved',
         })
-        .where(eq(changeSuggestions.id, suggestion!.documentId));
+        .where(eq(changeSuggestions.id, suggestion.id));
     });
 
     revalidatePath(
@@ -94,7 +124,7 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
       where: eq(changeSuggestions.id, Number(suggestionId)),
     });
 
-    if (!suggestion) {
+    if (!suggestion || suggestion.status !== 'open') {
       throw new Error('Suggestion not found');
     }
 
@@ -103,7 +133,7 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
       .set({
         status: 'closed',
       })
-      .where(eq(changeSuggestions.id, suggestion!.documentId));
+      .where(eq(changeSuggestions.id, suggestion.id));
 
     revalidatePath(
       `/docs/${suggestion.documentId}/suggestions/${suggestion.id}`
@@ -113,8 +143,8 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
   return (
     <>
       <div className="mb-4">
-        <span className="mr-2 inline-block rounded-2xl bg-slate-800 p-2 text-white">
-          {suggestion.status}
+        <span className="mr-2 inline-block rounded-2xl bg-slate-800 px-3 py-1.5 text-sm text-white">
+          {suggestion.status.toUpperCase()}
         </span>
         <h2 className="inline text-xl">{suggestion.title}</h2>
       </div>
@@ -124,12 +154,14 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
         <p className="flex-1 whitespace-pre-wrap">{newText}</p>
       </div>
 
-      <form className="mt-8 flex gap-2">
-        <Button formAction={handleApprove}>Approve</Button>
-        <Button formAction={handleReject} variant="outline">
-          Reject
-        </Button>
-      </form>
+      {suggestion.status === 'open' && (
+        <form className="mt-8 flex gap-2">
+          <Button formAction={handleApprove}>Approve</Button>
+          <Button formAction={handleReject} variant="outline">
+            Reject
+          </Button>
+        </form>
+      )}
     </>
   );
 };

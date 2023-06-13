@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import type { FC } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -14,10 +15,16 @@ type DocumentEditPageProps = {
 const DocumentEditPage: FC<DocumentEditPageProps> = async ({
   params: { documentId },
 }) => {
-  const document = await db
-    .select()
-    .from(documents)
-    .where(eq(documents.id, Number(documentId)));
+  const document = await db.query.documents.findFirst({
+    where: eq(documents.id, Number(documentId)),
+    with: {
+      currentVersion: true,
+    },
+  });
+
+  if (!document) {
+    return notFound();
+  }
 
   return (
     <>
@@ -31,7 +38,9 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
       </div>
 
       <div className="flex flex-col items-center">
-        <p className="mb-6 max-w-xl whitespace-pre-line">{document[0].state}</p>
+        <p className="mb-6 max-w-xl whitespace-pre-line">
+          {document.currentVersion?.content}
+        </p>
       </div>
     </>
   );

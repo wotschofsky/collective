@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import type { FC } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -17,31 +17,42 @@ type DocumentPageProps = {
 const DocumentPage: FC<DocumentPageProps> = async ({
   params: { documentId },
 }) => {
-  const [document] = await db
-    .select()
-    .from(documents)
-    .where(eq(documents.id, Number(documentId)));
+  const document = await db.query.documents.findFirst({
+    where: eq(documents.id, Number(documentId)),
+    with: {
+      currentVersion: true,
+    },
+  });
+
+  if (!document) {
+    return notFound();
+  }
 
   async function save(data: FormData) {
     'use server';
 
     const title = data.get('title')?.toString();
-    const comment = data.get('comment')?.toString();
+    const description = data.get('description')?.toString();
     const content = data.get('content')?.toString();
 
     if (!title || !content) {
       return;
     }
 
+    if (!document?.currentVersionId) {
+      return;
+    }
+
     await db.insert(changeSuggestions).values({
       title: title,
       documentId: document.id,
-      comment: comment,
-      state: content,
+      description: description || '',
+      content: content,
+      baseVersionId: document.currentVersionId,
     });
 
-    revalidatePath(`/docs/${document.id}/suggestions`);
-    redirect(`/docs/${document.id}`);
+    revalidatePath(`/docs/${document!.id}/suggestions`);
+    redirect(`/docs/${document!.id}`);
   }
 
   return (
@@ -55,16 +66,16 @@ const DocumentPage: FC<DocumentPageProps> = async ({
 
           <Input name="title" className="mb-4" placeholder="Title" required />
           <Input
-            name="comment"
+            name="description"
             className="mb-4"
-            placeholder="Comment (explanation or reasoning)"
+            placeholder="Description (explanation or reasoning)"
           />
           <Textarea
             name="content"
             className="mb-4"
             placeholder="Document Contents"
             rows={20}
-            defaultValue={document.state || ''}
+            defaultValue={document.currentVersion?.content ?? ''}
             required
           ></Textarea>
           <Button type="submit">Suggest Changes</Button>
