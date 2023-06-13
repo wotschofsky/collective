@@ -14,21 +14,21 @@ import db, { changeSuggestions } from '@/lib/db';
 
 type SuggestionsPageProps = {
   params: {
-    projectId: string;
+    documentId: string;
   };
 };
 
 const SuggestionsPage: FC<SuggestionsPageProps> = async ({
-  params: { projectId },
+  params: { documentId },
 }) => {
-  if (Number.isNaN(Number(projectId))) {
+  if (Number.isNaN(Number(documentId))) {
     return null;
   }
 
   const suggestions = await db
     .select()
     .from(changeSuggestions)
-    .where(eq(changeSuggestions.projectId, Number(projectId)));
+    .where(eq(changeSuggestions.documentId, Number(documentId)));
 
   return (
     <>
@@ -42,9 +42,7 @@ const SuggestionsPage: FC<SuggestionsPageProps> = async ({
             </CardHeader>
             <CardFooter>
               <Button asChild>
-                <Link
-                  href={`/projects/${projectId}/suggestions/${suggestion.id}`}
-                >
+                <Link href={`/docs/${documentId}/suggestions/${suggestion.id}`}>
                   View
                 </Link>
               </Button>

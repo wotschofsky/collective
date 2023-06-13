@@ -8,36 +8,36 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import db, { projects } from '@/lib/db';
+import db, { documents } from '@/lib/db';
 
 export default async function Home() {
-  const projectsData = await db.select().from(projects);
+  const documentsData = await db.select().from(documents);
 
   return (
     <>
       <div className="flex justify-between">
-        <h1 className="mb-6 text-2xl">Projects</h1>
+        <h1 className="mb-6 text-2xl">Documents</h1>
         <Button asChild>
-          <Link href="/projects/new">New Project</Link>
+          <Link href="/docs/new">New Document</Link>
         </Button>
       </div>
 
       <div className="flex gap-6">
-        {projectsData.map((project) => (
-          <Card key={project.id} className="w-72">
+        {documentsData.map((doc) => (
+          <Card key={doc.id} className="w-72">
             <CardHeader>
-              <CardTitle>{project.name}</CardTitle>
-              <CardDescription>{project.description}</CardDescription>
+              <CardTitle>{doc.name}</CardTitle>
+              <CardDescription>{doc.description}</CardDescription>
             </CardHeader>
             <CardFooter>
               <Button asChild>
-                <Link href={`/projects/${project.id}`}>View</Link>
+                <Link href={`/docs/${doc.id}`}>View</Link>
               </Button>
             </CardFooter>
           </Card>
         ))}
-        {projectsData.length === 0 && (
-          <p className="mt-16 flex-1 text-center">No projects yet.</p>
+        {documentsData.length === 0 && (
+          <p className="mt-16 flex-1 text-center">No documents yet.</p>
         )}
       </div>
     </>

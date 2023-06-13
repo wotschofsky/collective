@@ -6,19 +6,21 @@ import type { FC } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import db, { changeSuggestions, projects } from '@/lib/db';
+import db, { changeSuggestions, documents } from '@/lib/db';
 
-type ProjectPageProps = {
+type DocumentPageProps = {
   params: {
-    projectId: string;
+    documentId: string;
   };
 };
 
-const ProjectPage: FC<ProjectPageProps> = async ({ params: { projectId } }) => {
-  const [project] = await db
+const DocumentPage: FC<DocumentPageProps> = async ({
+  params: { documentId },
+}) => {
+  const [document] = await db
     .select()
-    .from(projects)
-    .where(eq(projects.id, Number(projectId)));
+    .from(documents)
+    .where(eq(documents.id, Number(documentId)));
 
   async function save(data: FormData) {
     'use server';
@@ -33,13 +35,13 @@ const ProjectPage: FC<ProjectPageProps> = async ({ params: { projectId } }) => {
 
     await db.insert(changeSuggestions).values({
       title: title,
-      projectId: project.id,
+      documentId: document.id,
       comment: comment,
       state: content,
     });
 
-    revalidatePath(`/projects/${project.id}/suggestions`);
-    redirect(`/projects/${project.id}`);
+    revalidatePath(`/docs/${document.id}/suggestions`);
+    redirect(`/docs/${document.id}`);
   }
 
   return (
@@ -62,7 +64,7 @@ const ProjectPage: FC<ProjectPageProps> = async ({ params: { projectId } }) => {
             className="mb-4"
             placeholder="Document Contents"
             rows={20}
-            defaultValue={project.state || ''}
+            defaultValue={document.state || ''}
             required
           ></Textarea>
           <Button type="submit">Suggest Changes</Button>
@@ -72,4 +74,4 @@ const ProjectPage: FC<ProjectPageProps> = async ({ params: { projectId } }) => {
   );
 };
 
-export default ProjectPage;
+export default DocumentPage;

@@ -6,18 +6,18 @@ import type { FC, ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
 import db from '@/lib/db';
-import { changeSuggestions, projects } from '@/lib/schema';
+import { changeSuggestions, documents } from '@/lib/schema';
 
-type ProjectEditPageProps = {
+type DocumentEditPageProps = {
   params: {
-    projectId: string;
+    documentId: string;
     suggestionId: string;
   };
 };
 
-const ProjectEditPage: FC<ProjectEditPageProps> = async ({
+const DocumentEditPage: FC<DocumentEditPageProps> = async ({
   params: { suggestionId },
-}: ProjectEditPageProps) => {
+}: DocumentEditPageProps) => {
   if (Number.isNaN(Number(suggestionId))) {
     return notFound();
   }
@@ -25,7 +25,7 @@ const ProjectEditPage: FC<ProjectEditPageProps> = async ({
   const suggestion = await db.query.changeSuggestions.findFirst({
     where: eq(changeSuggestions.id, Number(suggestionId)),
     with: {
-      project: true,
+      document: true,
     },
   });
 
@@ -34,7 +34,7 @@ const ProjectEditPage: FC<ProjectEditPageProps> = async ({
   }
 
   const changes = Diff.diffWords(
-    suggestion.project?.state || '',
+    suggestion.document?.state || '',
     suggestion.state
   );
 
@@ -69,21 +69,21 @@ const ProjectEditPage: FC<ProjectEditPageProps> = async ({
 
     await db.transaction(async (tx) => {
       await tx
-        .update(projects)
+        .update(documents)
         .set({
           state: suggestion?.state,
         })
-        .where(eq(projects.id, suggestion!.projectId));
+        .where(eq(documents.id, suggestion!.documentId));
       await tx
         .update(changeSuggestions)
         .set({
           status: 'approved',
         })
-        .where(eq(changeSuggestions.id, suggestion!.projectId));
+        .where(eq(changeSuggestions.id, suggestion!.documentId));
     });
 
     revalidatePath(
-      `/projects/${suggestion.projectId}/suggestions/${suggestion.id}`
+      `/docs/${suggestion.documentId}/suggestions/${suggestion.id}`
     );
   }
 
@@ -103,10 +103,10 @@ const ProjectEditPage: FC<ProjectEditPageProps> = async ({
       .set({
         status: 'closed',
       })
-      .where(eq(changeSuggestions.id, suggestion!.projectId));
+      .where(eq(changeSuggestions.id, suggestion!.documentId));
 
     revalidatePath(
-      `/projects/${suggestion.projectId}/suggestions/${suggestion.id}`
+      `/docs/${suggestion.documentId}/suggestions/${suggestion.id}`
     );
   }
 
@@ -134,4 +134,4 @@ const ProjectEditPage: FC<ProjectEditPageProps> = async ({
   );
 };
 
-export default ProjectEditPage;
+export default DocumentEditPage;

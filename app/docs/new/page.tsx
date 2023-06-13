@@ -4,9 +4,9 @@ import type { FC } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import db, { projects } from '@/lib/db';
+import db, { documents } from '@/lib/db';
 
-const NewProjectPage: FC<Record<never, never>> = () => {
+const NewDocumentPage: FC<Record<never, never>> = () => {
   async function save(data: FormData) {
     'use server';
 
@@ -18,7 +18,7 @@ const NewProjectPage: FC<Record<never, never>> = () => {
       return;
     }
 
-    await db.insert(projects).values({
+    await db.insert(documents).values({
       name: name,
       description: description,
       state: content,
@@ -34,7 +34,7 @@ const NewProjectPage: FC<Record<never, never>> = () => {
           <Input
             name="name"
             className="mb-4"
-            placeholder="Project Name"
+            placeholder="Document Name"
             required
           />
           <Input
@@ -49,11 +49,11 @@ const NewProjectPage: FC<Record<never, never>> = () => {
             rows={20}
             required
           ></Textarea>
-          <Button type="submit">Create Project</Button>
+          <Button type="submit">Create Document</Button>
         </form>
       </div>
     </>
   );
 };
 
-export default NewProjectPage;
+export default NewDocumentPage;
