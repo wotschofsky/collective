@@ -1,10 +1,13 @@
 import { eq } from 'drizzle-orm';
+import MarkdownIt from 'markdown-it';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { FC } from 'react';
 
 import { Button } from '@/components/ui/button';
 import db, { documents } from '@/lib/db';
+
+const md = new MarkdownIt();
 
 type DocumentEditPageProps = {
   params: {
@@ -22,7 +25,7 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
     },
   });
 
-  if (!document) {
+  if (!document?.currentVersion) {
     return notFound();
   }
 
@@ -38,9 +41,12 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
       </div>
 
       <div className="flex flex-col items-center">
-        <p className="mb-6 max-w-xl whitespace-pre-line">
-          {document.currentVersion?.content}
-        </p>
+        <div
+          className="prose mb-6 max-w-xl"
+          dangerouslySetInnerHTML={{
+            __html: md.render(document.currentVersion.content),
+          }}
+        ></div>
       </div>
     </>
   );
