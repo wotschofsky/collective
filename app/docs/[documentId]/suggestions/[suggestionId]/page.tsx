@@ -94,9 +94,11 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
 
     await db.transaction(async (tx) => {
       const newVersion = await tx.insert(documentVersion).values({
-        documentId: suggestion!.documentId,
+        documentId: suggestion.documentId,
+        description: suggestion.description,
         content: mergedContent,
-        previousVersionId: suggestion!.document.currentVersionId,
+        previousVersionId: suggestion.document.currentVersionId,
+        createdAt: new Date(),
       });
       await tx
         .update(documents)

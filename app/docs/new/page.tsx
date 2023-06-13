@@ -26,8 +26,10 @@ const NewDocumentPage: FC<Record<never, never>> = () => {
       });
 
       const version = await tx.insert(documentVersion).values({
+        description: 'Initial Version',
         content: content,
         documentId: Number(document.insertId),
+        createdAt: new Date(),
       });
 
       await tx

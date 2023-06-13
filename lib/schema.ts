@@ -1,6 +1,7 @@
 import { relations } from 'drizzle-orm';
 import {
   char,
+  datetime,
   int,
   mysqlTable,
   serial,
@@ -27,8 +28,10 @@ export const documentsRelations = relations(documents, ({ many, one }) => ({
 export const documentVersion = mysqlTable('document_versions', {
   id: serial('id').primaryKey(),
   documentId: int('document_id').notNull(),
+  description: varchar('description', { length: 1024 }).notNull(),
   content: text('content').notNull(),
   previousVersionId: int('previous_version_id'),
+  createdAt: datetime('created_at').notNull(),
 });
 
 export const documentVersionRelations = relations(
@@ -55,6 +58,7 @@ export const changeSuggestions = mysqlTable('change_suggestions', {
     .notNull(),
   content: text('content').notNull(),
   baseVersionId: int('base_version_id').notNull(),
+  createdAt: datetime('created_at').notNull(),
 });
 
 export const changeSuggestionsRelations = relations(

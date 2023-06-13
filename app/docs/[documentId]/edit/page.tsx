@@ -49,6 +49,7 @@ const DocumentPage: FC<DocumentPageProps> = async ({
       description: description || '',
       content: content,
       baseVersionId: document.currentVersionId,
+      createdAt: new Date(),
     });
 
     revalidatePath(`/docs/${document!.id}/suggestions`);
