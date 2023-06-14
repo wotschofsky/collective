@@ -24,7 +24,7 @@ export default async function Home() {
         </Button>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-wrap gap-6">
         {documents.map((doc) => (
           <div key={doc.id} className="w-72">
             <h3 className="text-lg font-semibold">{doc.name}</h3>
