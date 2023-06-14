@@ -9,13 +9,13 @@ import db, { documents } from '@/lib/db';
 
 const md = new MarkdownIt();
 
-type DocumentEditPageProps = {
+type DocumentPageProps = {
   params: {
     documentId: string;
   };
 };
 
-const DocumentEditPage: FC<DocumentEditPageProps> = async ({
+const DocumentPage: FC<DocumentPageProps> = async ({
   params: { documentId },
 }) => {
   const document = await db.query.documents.findFirst({
@@ -52,4 +52,4 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
   );
 };
 
-export default DocumentEditPage;
+export default DocumentPage;
