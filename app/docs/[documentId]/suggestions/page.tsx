@@ -26,8 +26,6 @@ const SuggestionsPage: FC<SuggestionsPageProps> = async ({
 
   return (
     <>
-      <h1 className="mb-6 text-xl">Change Suggestions</h1>
-
       <div className="flex flex-col gap-6">
         {suggestions.map((suggestion) => (
           <Card key={suggestion.id} className="flex w-full items-center p-4">

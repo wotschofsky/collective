@@ -30,25 +30,14 @@ const DocumentPage: FC<DocumentPageProps> = async ({
   }
 
   return (
-    <>
-      <div className="mb-4 flex gap-2">
-        <Button asChild>
-          <Link href={`/docs/${documentId}/edit`}>Edit</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href={`/docs/${documentId}/suggestions`}>Suggestions</Link>
-        </Button>
-      </div>
-
-      <div className="flex flex-col items-center">
-        <div
-          className="prose mb-6 max-w-xl"
-          dangerouslySetInnerHTML={{
-            __html: md.render(document.currentVersion.content),
-          }}
-        ></div>
-      </div>
-    </>
+    <div className="flex flex-col items-center">
+      <div
+        className="prose mb-6 max-w-xl"
+        dangerouslySetInnerHTML={{
+          __html: md.render(document.currentVersion.content),
+        }}
+      ></div>
+    </div>
   );
 };
 
