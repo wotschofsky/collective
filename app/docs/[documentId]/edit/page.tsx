@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import { getServerSession } from 'next-auth';
 import { revalidatePath } from 'next/cache';
 import { notFound, redirect } from 'next/navigation';
 import type { FC } from 'react';
@@ -6,6 +7,7 @@ import type { FC } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { authOptions } from '@/lib/auth';
 import db, { changeSuggestions, documents } from '@/lib/db';
 
 type DocumentPageProps = {
@@ -43,11 +45,17 @@ const DocumentPage: FC<DocumentPageProps> = async ({
       return;
     }
 
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.name) {
+      return;
+    }
+
     const suggestion = await db.insert(changeSuggestions).values({
       title: title,
       documentId: document.id,
       description: description || '',
       content: content,
+      author: session.user.name,
       baseVersionId: document.currentVersionId,
       createdAt: new Date(),
     });

@@ -30,6 +30,7 @@ export const documentVersion = mysqlTable('document_versions', {
   documentId: int('document_id').notNull(),
   description: varchar('description', { length: 1024 }).notNull(),
   content: text('content').notNull(),
+  author: varchar('author', { length: 256 }).notNull(),
   previousVersionId: int('previous_version_id'),
   createdAt: datetime('created_at').notNull(),
 });
@@ -57,6 +58,7 @@ export const changeSuggestions = mysqlTable('change_suggestions', {
     .default('open')
     .notNull(),
   content: text('content').notNull(),
+  author: varchar('author', { length: 256 }).notNull(),
   baseVersionId: int('base_version_id').notNull(),
   createdAt: datetime('created_at').notNull(),
 });
