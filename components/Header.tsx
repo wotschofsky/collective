@@ -1,9 +1,18 @@
 'use client';
 
-import { signIn, useSession } from 'next-auth/react';
+import { LogOutIcon, UserIcon } from 'lucide-react';
+import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
@@ -16,10 +25,25 @@ const Header = () => {
         <Link href="/">Collective</Link>
 
         {session.data ? (
-          <Avatar>
-            <AvatarImage src={session.data.user?.image ?? ''} />
-            <AvatarFallback>{session.data.user?.name}</AvatarFallback>
-          </Avatar>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className="cursor-pointer">
+                <AvatarImage src={session.data.user?.image ?? ''} />
+                <AvatarFallback>{session.data.user?.name}</AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>
+                <UserIcon className="mr-2 h-4 w-4" />
+                <span>{session.data.user?.name}</span>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => signOut()}>
+                <LogOutIcon className="mr-2 h-4 w-4" />
+                <span>Sign Out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : (
           <Button onClick={() => signIn('twitter')} variant="outline">
             Login
