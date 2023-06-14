@@ -43,7 +43,7 @@ export default async function Home() {
             {doc.currentVersion && (
               <span className="text-gray-500">
                 Last modified{' '}
-                {formatDistance(doc.currentVersion.createdAt, new Date())}
+                {formatDistance(doc.currentVersion.createdAt, new Date())} ago
               </span>
             )}
           </div>
