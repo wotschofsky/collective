@@ -1,17 +1,19 @@
+import { formatDistance } from 'date-fns';
+import MarkdownIt from 'markdown-it';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import db, { documents } from '@/lib/db';
+import { Card } from '@/components/ui/card';
+import db from '@/lib/db';
+
+const md = new MarkdownIt();
 
 export default async function Home() {
-  const documentsData = await db.select().from(documents);
+  const documents = await db.query.documents.findMany({
+    with: {
+      currentVersion: true,
+    },
+  });
 
   return (
     <>
@@ -23,20 +25,30 @@ export default async function Home() {
       </div>
 
       <div className="flex gap-6">
-        {documentsData.map((doc) => (
-          <Card key={doc.id} className="w-72">
-            <CardHeader>
-              <CardTitle>{doc.name}</CardTitle>
-              <CardDescription>{doc.description}</CardDescription>
-            </CardHeader>
-            <CardFooter>
-              <Button asChild>
-                <Link href={`/docs/${doc.id}`}>View</Link>
-              </Button>
-            </CardFooter>
-          </Card>
+        {documents.map((doc) => (
+          <div key={doc.id} className="w-72">
+            <h3 className="text-lg font-semibold">{doc.name}</h3>
+            <Link href={`/docs/${doc.id}`}>
+              <Card className="my-4 p-4">
+                <div className="aspect-[1/1.29] select-none overflow-hidden">
+                  <div
+                    className="prose w-[250%] origin-top-left scale-[0.4]"
+                    dangerouslySetInnerHTML={{
+                      __html: md.render(doc.currentVersion?.content ?? ''),
+                    }}
+                  ></div>
+                </div>
+              </Card>
+            </Link>
+            {doc.currentVersion && (
+              <span className="text-gray-500">
+                Last modified{' '}
+                {formatDistance(doc.currentVersion.createdAt, new Date())}
+              </span>
+            )}
+          </div>
         ))}
-        {documentsData.length === 0 && (
+        {documents.length === 0 && (
           <p className="mt-16 flex-1 text-center">No documents yet.</p>
         )}
       </div>
