@@ -1,11 +1,9 @@
+import clsx from 'clsx';
 import { diffLines } from 'diff';
 import { eq } from 'drizzle-orm';
-import MarkdownIt from 'markdown-it';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { FC } from 'react';
 
-import { Button } from '@/components/ui/button';
 import db, { documents, DocumentVersion } from '@/lib/db';
 
 type DocumentBlamePageProps = {
@@ -76,28 +74,34 @@ const DocumentBlamePage: FC<DocumentBlamePageProps> = async ({
     }
   }
 
-  return (
-    <div className="flex items-center gap-6">
-      <code className="whitespace-pre">{document.currentVersion.content}</code>
-      <div>
-        {blame.map((line, index, allLines) => {
-          const previousLine = allLines[index - 1];
+  const documentLines = document.currentVersion.content.split('\n');
 
-          if (previousLine && previousLine.id === line.id) {
-            // eslint-disable-next-line react/jsx-key
-            return <span className="block whitespace-pre"> </span>;
-          }
+  return (
+    <table className="w-full">
+      <tbody>
+        {new Array(documentLines.length).fill(0).map((_, index) => {
+          const isNewBlame = index === 0 || blame[index - 1] !== blame[index];
 
           return (
-            // eslint-disable-next-line react/jsx-key
-            <span className="block whitespace-pre border-t-[1px] border-slate-500">
-              {line.description} ({line.author}, {line.createdAt.toDateString()}
-              )
-            </span>
+            <tr
+              key={index}
+              className={clsx({
+                ['border-t-[1px] border-slate-500']: isNewBlame && index !== 0,
+              })}
+            >
+              <td>{documentLines[index]}</td>
+              <td className="box-border min-w-max align-top text-sm">
+                {isNewBlame &&
+                  `${blame[index].description} (${blame[index].author}, ${blame[
+                    index
+                  ].createdAt.toDateString()})`}
+              </td>
+            </tr>
           );
         })}
-      </div>
-    </div>
+        <tr></tr>
+      </tbody>
+    </table>
   );
 };
 
