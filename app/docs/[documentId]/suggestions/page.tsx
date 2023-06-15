@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import db, { changeSuggestions } from '@/lib/db';
 
+export const runtime = 'edge';
+export const preferredRegion = 'iad1';
+
 type SuggestionsPageProps = {
   params: {
     documentId: string;

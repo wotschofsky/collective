@@ -8,6 +8,9 @@ import db from '@/lib/db';
 
 const md = new MarkdownIt();
 
+export const runtime = 'edge';
+export const preferredRegion = 'iad1';
+
 export default async function Home() {
   const documents = await db.query.documents.findMany({
     with: {

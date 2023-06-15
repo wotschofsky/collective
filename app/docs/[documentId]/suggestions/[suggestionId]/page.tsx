@@ -11,6 +11,9 @@ import { changeSuggestions, documents, documentVersion } from '@/lib/schema';
 
 const dmp = new DiffMainPatch();
 
+export const runtime = 'edge';
+export const preferredRegion = 'iad1';
+
 type DocumentEditPageProps = {
   params: {
     documentId: string;

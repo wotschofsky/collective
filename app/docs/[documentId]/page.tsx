@@ -1,13 +1,14 @@
 import { eq } from 'drizzle-orm';
 import MarkdownIt from 'markdown-it';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { FC } from 'react';
 
-import { Button } from '@/components/ui/button';
 import db, { documents } from '@/lib/db';
 
 const md = new MarkdownIt();
+
+export const runtime = 'edge';
+export const preferredRegion = 'iad1';
 
 type DocumentPageProps = {
   params: {
