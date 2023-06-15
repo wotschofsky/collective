@@ -1,19 +1,19 @@
-import { type InferModel, relations } from 'drizzle-orm';
+import { type InferModel, relations, sql } from 'drizzle-orm';
 import {
   char,
   datetime,
-  int,
   mysqlTable,
-  serial,
   text,
   varchar,
 } from 'drizzle-orm/mysql-core';
 
 export const documents = mysqlTable('documents', {
-  id: serial('id').primaryKey(),
+  id: char('id', { length: 36 })
+    .default(sql`(UUID())`)
+    .primaryKey(),
   name: varchar('name', { length: 256 }).notNull(),
   description: varchar('description', { length: 1024 }).notNull(),
-  currentVersionId: int('current_version_id'),
+  currentVersionId: char('current_version_id', { length: 36 }),
 });
 
 export type Document = InferModel<typeof documents>;
@@ -28,12 +28,14 @@ export const documentsRelations = relations(documents, ({ many, one }) => ({
 }));
 
 export const documentVersion = mysqlTable('document_versions', {
-  id: serial('id').primaryKey(),
-  documentId: int('document_id').notNull(),
+  id: char('id', { length: 36 })
+    .default(sql`(UUID())`)
+    .primaryKey(),
+  documentId: char('document_id', { length: 36 }).notNull(),
   description: varchar('description', { length: 1024 }).notNull(),
   content: text('content').notNull(),
   author: varchar('author', { length: 256 }).notNull(),
-  previousVersionId: int('previous_version_id'),
+  previousVersionId: char('previous_version_id', { length: 36 }),
   createdAt: datetime('created_at').notNull(),
 });
 
@@ -54,16 +56,18 @@ export const documentVersionRelations = relations(
 );
 
 export const changeSuggestions = mysqlTable('change_suggestions', {
-  id: serial('id').primaryKey(),
+  id: char('id', { length: 36 })
+    .default(sql`(UUID())`)
+    .primaryKey(),
   title: varchar('title', { length: 256 }).notNull(),
   description: varchar('description', { length: 1024 }).notNull(),
-  documentId: int('document_id').notNull(),
+  documentId: char('document_id', { length: 36 }).notNull(),
   status: char('status', { length: 8, enum: ['open', 'approved', 'closed'] })
     .default('open')
     .notNull(),
   content: text('content').notNull(),
   author: varchar('author', { length: 256 }).notNull(),
-  baseVersionId: int('base_version_id').notNull(),
+  baseVersionId: char('base_version_id', { length: 36 }).notNull(),
   createdAt: datetime('created_at').notNull(),
 });
 
