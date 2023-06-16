@@ -22,9 +22,12 @@ export const users = mysqlTable('users', {
   image: varchar('image', { length: 255 }),
 });
 
-export const userRelations = relations(users, ({ one, many }) => ({
+export const userRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   sessions: many(sessions),
+  documents: many(documents),
+  documentVersions: many(documentVersion),
+  changeSuggestions: many(changeSuggestions),
 }));
 
 export const accounts = mysqlTable(
@@ -92,6 +95,7 @@ export const documents = mysqlTable('documents', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 256 }).notNull(),
   description: varchar('description', { length: 1024 }).notNull(),
+  ownerId: char('owner_id', { length: 36 }).notNull(),
   currentVersionId: int('current_version_id'),
 });
 
@@ -99,6 +103,10 @@ export type Document = InferModel<typeof documents>;
 
 export const documentsRelations = relations(documents, ({ many, one }) => ({
   suggestions: many(changeSuggestions),
+  owner: one(users, {
+    fields: [documents.ownerId],
+    references: [users.id],
+  }),
   currentVersion: one(documentVersion, {
     fields: [documents.currentVersionId],
     references: [documentVersion.id],
@@ -111,7 +119,7 @@ export const documentVersion = mysqlTable('document_versions', {
   documentId: int('document_id').notNull(),
   description: varchar('description', { length: 1024 }).notNull(),
   content: text('content').notNull(),
-  author: varchar('author', { length: 256 }).notNull(),
+  authorId: char('author_id', { length: 36 }).notNull(),
   previousVersionId: int('previous_version_id'),
   createdAt: datetime('created_at').notNull(),
 });
@@ -124,6 +132,10 @@ export const documentVersionRelations = relations(
     document: one(documents, {
       fields: [documentVersion.documentId],
       references: [documents.id],
+    }),
+    author: one(users, {
+      fields: [documentVersion.authorId],
+      references: [users.id],
     }),
     previousVersion: one(documentVersion, {
       fields: [documentVersion.previousVersionId],
@@ -141,7 +153,7 @@ export const changeSuggestions = mysqlTable('change_suggestions', {
     .default('open')
     .notNull(),
   content: text('content').notNull(),
-  author: varchar('author', { length: 256 }).notNull(),
+  authorId: char('author_id', { length: 36 }).notNull(),
   baseVersionId: int('base_version_id').notNull(),
   createdAt: datetime('created_at').notNull(),
 });
@@ -154,6 +166,10 @@ export const changeSuggestionsRelations = relations(
     document: one(documents, {
       fields: [changeSuggestions.documentId],
       references: [documents.id],
+    }),
+    author: one(users, {
+      fields: [changeSuggestions.authorId],
+      references: [users.id],
     }),
     baseVersion: one(documentVersion, {
       fields: [changeSuggestions.baseVersionId],

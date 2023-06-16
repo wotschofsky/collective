@@ -21,10 +21,14 @@ const DocumentBlamePage: FC<DocumentBlamePageProps> = async ({
   const document = await db.query.documents.findFirst({
     where: eq(documents.id, Number(documentId)),
     with: {
-      currentVersion: true,
+      currentVersion: {
+        with: {
+          author: true,
+        },
+      },
       allVersions: {
         with: {
-          previousVersion: true,
+          author: true,
         },
         orderBy: (documents, { desc }) => [desc(documents.createdAt)],
       },
@@ -35,7 +39,7 @@ const DocumentBlamePage: FC<DocumentBlamePageProps> = async ({
     return notFound();
   }
 
-  const versions: DocumentVersion[] = [document.currentVersion];
+  const versions: typeof document.allVersions = [document.currentVersion];
   let version = document.currentVersion;
   while (true) {
     const previousVersion = document.allVersions.find(
@@ -50,7 +54,7 @@ const DocumentBlamePage: FC<DocumentBlamePageProps> = async ({
     version = previousVersion;
   }
 
-  let blame: DocumentVersion[] = new Array(
+  let blame: typeof document.allVersions = new Array(
     versions[0].content.split('\n').length
   ).fill(versions[0]);
 
@@ -95,9 +99,9 @@ const DocumentBlamePage: FC<DocumentBlamePageProps> = async ({
               <td>{documentLines[index]}</td>
               <td className="box-border min-w-max align-top text-sm">
                 {isNewBlame &&
-                  `${blame[index].description} (${blame[index].author}, ${blame[
-                    index
-                  ].createdAt.toDateString()})`}
+                  `${blame[index].description} (${
+                    blame[index].author.email
+                  }, ${blame[index].createdAt.toDateString()})`}
               </td>
             </tr>
           );

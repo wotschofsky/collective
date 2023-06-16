@@ -100,7 +100,7 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
         documentId: suggestion.documentId,
         description: suggestion.title,
         content: mergedContent,
-        author: suggestion.author,
+        authorId: suggestion.authorId,
         previousVersionId: suggestion.document.currentVersionId,
         createdAt: new Date(),
       });

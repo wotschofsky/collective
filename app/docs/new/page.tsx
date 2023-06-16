@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import type { FC } from 'react';
@@ -34,12 +34,13 @@ const NewDocumentPage: FC<Record<never, never>> = () => {
       const document = await tx.insert(documents).values({
         name: name,
         description: description ?? '',
+        ownerId: session.user.id,
       });
 
       const version = await tx.insert(documentVersion).values({
         description: 'Initial Version',
         content: content,
-        author: session.user.name,
+        authorId: session.user.id,
         documentId: Number(document.insertId),
         createdAt: new Date(),
       });

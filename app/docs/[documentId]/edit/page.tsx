@@ -55,7 +55,7 @@ const DocumentPage: FC<DocumentPageProps> = async ({
       documentId: document.id,
       description: description || '',
       content: content,
-      author: session.user.name,
+      authorId: session.user.id,
       baseVersionId: document.currentVersionId,
       createdAt: new Date(),
     });
