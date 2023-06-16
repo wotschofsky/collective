@@ -19,7 +19,7 @@ const DocumentBlamePage: FC<DocumentBlamePageProps> = async ({
   params: { documentId },
 }) => {
   const document = await db.query.documents.findFirst({
-    where: eq(documents.id, documentId),
+    where: eq(documents.id, Number(documentId)),
     with: {
       currentVersion: true,
       allVersions: {

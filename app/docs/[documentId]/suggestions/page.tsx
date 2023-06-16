@@ -18,10 +18,14 @@ type SuggestionsPageProps = {
 const SuggestionsPage: FC<SuggestionsPageProps> = async ({
   params: { documentId },
 }) => {
+  if (Number.isNaN(Number(documentId))) {
+    return null;
+  }
+
   const suggestions = await db
     .select()
     .from(changeSuggestions)
-    .where(eq(changeSuggestions.documentId, documentId));
+    .where(eq(changeSuggestions.documentId, Number(documentId)));
 
   return (
     <>

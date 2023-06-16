@@ -40,16 +40,16 @@ const NewDocumentPage: FC<Record<never, never>> = () => {
         description: 'Initial Version',
         content: content,
         author: session.user.name,
-        documentId: document.insertId,
+        documentId: Number(document.insertId),
         createdAt: new Date(),
       });
 
       await tx
         .update(documents)
         .set({
-          currentVersionId: version.insertId,
+          currentVersionId: Number(version.insertId),
         })
-        .where(eq(documents.id, document.insertId));
+        .where(eq(documents.id, Number(document.insertId)));
     });
 
     redirect('/');

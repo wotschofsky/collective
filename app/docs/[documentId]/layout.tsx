@@ -16,8 +16,11 @@ const DocumentPageLayout: FC<DocumentPageLayoutProps> = async ({
   params: { documentId },
   children,
 }) => {
+  if (Number.isNaN(Number(documentId))) {
+    return notFound();
+  }
   const document = await db.query.documents.findFirst({
-    where: eq(documents.id, documentId),
+    where: eq(documents.id, Number(documentId)),
   });
 
   if (!document) {

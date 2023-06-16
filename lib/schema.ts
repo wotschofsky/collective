@@ -5,6 +5,7 @@ import {
   int,
   mysqlTable,
   primaryKey,
+  serial,
   text,
   timestamp,
   varchar,
@@ -88,12 +89,10 @@ export const verificationTokens = mysqlTable(
 );
 
 export const documents = mysqlTable('documents', {
-  id: char('id', { length: 36 })
-    .default(sql`(UUID())`)
-    .primaryKey(),
+  id: serial('id').primaryKey(),
   name: varchar('name', { length: 256 }).notNull(),
   description: varchar('description', { length: 1024 }).notNull(),
-  currentVersionId: char('current_version_id', { length: 36 }),
+  currentVersionId: int('current_version_id'),
 });
 
 export type Document = InferModel<typeof documents>;
@@ -108,14 +107,12 @@ export const documentsRelations = relations(documents, ({ many, one }) => ({
 }));
 
 export const documentVersion = mysqlTable('document_versions', {
-  id: char('id', { length: 36 })
-    .default(sql`(UUID())`)
-    .primaryKey(),
-  documentId: char('document_id', { length: 36 }).notNull(),
+  id: serial('id').primaryKey(),
+  documentId: int('document_id').notNull(),
   description: varchar('description', { length: 1024 }).notNull(),
   content: text('content').notNull(),
   author: varchar('author', { length: 256 }).notNull(),
-  previousVersionId: char('previous_version_id', { length: 36 }),
+  previousVersionId: int('previous_version_id'),
   createdAt: datetime('created_at').notNull(),
 });
 
@@ -136,18 +133,16 @@ export const documentVersionRelations = relations(
 );
 
 export const changeSuggestions = mysqlTable('change_suggestions', {
-  id: char('id', { length: 36 })
-    .default(sql`(UUID())`)
-    .primaryKey(),
+  id: serial('id').primaryKey(),
   title: varchar('title', { length: 256 }).notNull(),
   description: varchar('description', { length: 1024 }).notNull(),
-  documentId: char('document_id', { length: 36 }).notNull(),
+  documentId: int('document_id').notNull(),
   status: char('status', { length: 8, enum: ['open', 'approved', 'closed'] })
     .default('open')
     .notNull(),
   content: text('content').notNull(),
   author: varchar('author', { length: 256 }).notNull(),
-  baseVersionId: char('base_version_id', { length: 36 }).notNull(),
+  baseVersionId: int('base_version_id').notNull(),
   createdAt: datetime('created_at').notNull(),
 });
 

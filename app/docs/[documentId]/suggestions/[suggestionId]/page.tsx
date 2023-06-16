@@ -24,8 +24,12 @@ type DocumentEditPageProps = {
 const DocumentEditPage: FC<DocumentEditPageProps> = async ({
   params: { suggestionId },
 }: DocumentEditPageProps) => {
+  if (Number.isNaN(Number(suggestionId))) {
+    return notFound();
+  }
+
   const suggestion = await db.query.changeSuggestions.findFirst({
-    where: eq(changeSuggestions.id, suggestionId),
+    where: eq(changeSuggestions.id, Number(suggestionId)),
     with: {
       baseVersion: true,
     },
@@ -62,7 +66,7 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
     'use server';
 
     const suggestion = await db.query.changeSuggestions.findFirst({
-      where: eq(changeSuggestions.id, suggestionId),
+      where: eq(changeSuggestions.id, Number(suggestionId)),
       with: {
         baseVersion: true,
         document: {
@@ -103,7 +107,7 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
       await tx
         .update(documents)
         .set({
-          currentVersionId: newVersion.insertId,
+          currentVersionId: Number(newVersion.insertId),
         })
         .where(eq(documents.id, suggestion.documentId));
       await tx
@@ -125,7 +129,7 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
     'use server';
 
     const suggestion = await db.query.changeSuggestions.findFirst({
-      where: eq(changeSuggestions.id, suggestionId),
+      where: eq(changeSuggestions.id, Number(suggestionId)),
     });
 
     if (!suggestion || suggestion.status !== 'open') {
