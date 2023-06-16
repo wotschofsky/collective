@@ -189,17 +189,15 @@ export const authOptions: NextAuthOptions = {
       const emailHash = md5(token.email);
 
       const response = await fetch(`https://gravatar.com/${emailHash}.json`);
-      if (response.status !== 200) {
-        return session;
-      }
-      const { entry } = await response.json();
+      const { entry } =
+        response.status === 200 ? await response.json() : { entry: [{}] };
 
       return {
         user: {
           id: token.uid,
           email: token.email,
           name: entry[0].displayName || token.email,
-          image: `https://gravatar.com/avatar/${emailHash}?s=64`,
+          image: `https://gravatar.com/avatar/${emailHash}?d=identicon&s=64`,
         },
         expires: session.expires,
       };
