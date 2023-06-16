@@ -1,7 +1,8 @@
 import { and, eq } from 'drizzle-orm';
 import type { NextAuthOptions } from 'next-auth';
 import type { Adapter } from 'next-auth/adapters';
-import TwitterProvider from 'next-auth/providers/twitter';
+import Email from 'next-auth/providers/email';
+import crypto from 'node:crypto';
 
 import db from './db';
 import { accounts, sessions, users, verificationTokens } from './schema';
@@ -158,16 +159,50 @@ const DrizzleAdapter = (): Adapter => ({
   },
 });
 
+const md5 = (source: string) =>
+  crypto.createHash('md5').update(source).digest('hex');
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
   },
   adapter: DrizzleAdapter(),
   providers: [
-    TwitterProvider({
-      clientId: process.env.TWITTER_CLIENT_ID!,
-      clientSecret: process.env.TWITTER_CLIENT_SECRET!,
-      version: '2.0',
+    Email({
+      server: process.env.EMAIL_SERVER,
+      from: process.env.EMAIL_FROM,
     }),
   ],
+  callbacks: {
+    jwt: async ({ user, token }) => {
+      if (user) {
+        token.uid = user.id;
+      }
+
+      return token;
+    },
+    session: async ({ session, token }) => {
+      if (!token.email) {
+        return session;
+      }
+
+      const emailHash = md5(token.email);
+
+      const response = await fetch(`https://gravatar.com/${emailHash}.json`);
+      if (response.status !== 200) {
+        return session;
+      }
+      const { entry } = await response.json();
+
+      return {
+        user: {
+          id: token.uid,
+          email: token.email,
+          name: entry[0].displayName || token.email,
+          image: `https://gravatar.com/avatar/${emailHash}?s=64`,
+        },
+        expires: session.expires,
+      };
+    },
+  },
 };
