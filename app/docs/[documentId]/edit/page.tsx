@@ -19,6 +19,8 @@ type DocumentPageProps = {
 const DocumentPage: FC<DocumentPageProps> = async ({
   params: { documentId },
 }) => {
+  const session = await getServerSession(authOptions);
+
   const document = await db.query.documents.findFirst({
     where: eq(documents.id, Number(documentId)),
     with: {
@@ -64,31 +66,57 @@ const DocumentPage: FC<DocumentPageProps> = async ({
     redirect(`/docs/${document!.id}/suggestions/${suggestion.insertId}`);
   }
 
+  async function deleteDoc() {
+    'use server';
+
+    if (!document) {
+      return;
+    }
+
+    const session = await getServerSession(authOptions);
+
+    if (!session || session?.user?.id !== document.ownerId) {
+      return;
+    }
+
+    await db.delete(documents).where(eq(documents.id, document.id));
+
+    redirect('/');
+  }
+
   return (
     <>
-      <div className="flex justify-center">
-        <form action={save} className="w-full max-w-xl">
-          <p className="mb-8">
-            Modify the selected document below and submit it as a suggestion for
-            changes
-          </p>
+      <div className="flex flex-col items-center">
+        <div className="w-full max-w-xl">
+          <form action={save}>
+            <p className="mb-8">
+              Modify the selected document below and submit it as a suggestion
+              for changes
+            </p>
 
-          <Input name="title" className="mb-4" placeholder="Title" required />
-          <Input
-            name="description"
-            className="mb-4"
-            placeholder="Description (explanation or reasoning)"
-          />
-          <Textarea
-            name="content"
-            className="mb-4"
-            placeholder="Document Contents"
-            rows={20}
-            defaultValue={document.currentVersion?.content ?? ''}
-            required
-          ></Textarea>
-          <Button type="submit">Suggest Changes</Button>
-        </form>
+            <Input name="title" className="mb-4" placeholder="Title" required />
+            <Input
+              name="description"
+              className="mb-4"
+              placeholder="Description (explanation or reasoning)"
+            />
+            <Textarea
+              name="content"
+              className="mb-4"
+              placeholder="Document Contents"
+              rows={20}
+              defaultValue={document.currentVersion?.content ?? ''}
+              required
+            ></Textarea>
+            <Button type="submit">Suggest Changes</Button>
+          </form>
+
+          {session?.user?.id === document.ownerId && (
+            <form action={deleteDoc} className="mt-4">
+              <Button variant="destructive">Delete</Button>
+            </form>
+          )}
+        </div>
       </div>
     </>
   );
