@@ -30,9 +30,8 @@ export default async function Home() {
       <div className="flex flex-wrap gap-6">
         {documents.map((doc) => (
           <div key={doc.id} className="w-72">
-            <h3 className="text-lg font-semibold">{doc.name}</h3>
             <Link href={`/docs/${doc.id}`}>
-              <Card className="my-4 p-4">
+              <Card className="p-4">
                 <div className="aspect-[1/1.29] select-none overflow-hidden">
                   <div
                     className="prose w-[250%] origin-top-left scale-[0.4]"
@@ -43,6 +42,7 @@ export default async function Home() {
                 </div>
               </Card>
             </Link>
+            <h3 className="my-4 text-lg font-semibold">{doc.name}</h3>
             {doc.currentVersion && (
               <span className="text-gray-500">
                 Last modified{' '}
