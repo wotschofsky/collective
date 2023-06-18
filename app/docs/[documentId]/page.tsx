@@ -8,7 +8,7 @@ import db, { documents } from '@/lib/db';
 const md = new MarkdownIt();
 
 export const runtime = 'edge';
-export const preferredRegion = 'iad1';
+export const preferredRegion = 'home';
 
 type DocumentPageProps = {
   params: {

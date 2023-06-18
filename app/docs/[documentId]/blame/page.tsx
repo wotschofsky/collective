@@ -7,7 +7,7 @@ import type { FC } from 'react';
 import db, { documents, DocumentVersion } from '@/lib/db';
 
 export const runtime = 'edge';
-export const preferredRegion = 'iad1';
+export const preferredRegion = 'home';
 
 type DocumentBlamePageProps = {
   params: {
