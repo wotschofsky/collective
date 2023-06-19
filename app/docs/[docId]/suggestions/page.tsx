@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import Link from 'next/link';
-import { FC } from 'react';
+import type { FC } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';

@@ -1,4 +1,4 @@
-import { ClassValue, clsx } from 'clsx';
+import { type ClassValue, clsx } from 'clsx';
 import md5 from 'js-md5';
 import { twMerge } from 'tailwind-merge';
 

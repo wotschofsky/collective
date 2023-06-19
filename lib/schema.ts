@@ -10,7 +10,7 @@ import {
   timestamp,
   varchar,
 } from 'drizzle-orm/mysql-core';
-import { AdapterAccount } from 'next-auth/adapters';
+import type { AdapterAccount } from 'next-auth/adapters';
 
 export const users = mysqlTable('users', {
   id: char('id', { length: 36 })
