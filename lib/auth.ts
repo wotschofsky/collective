@@ -4,8 +4,9 @@ import type { Adapter } from 'next-auth/adapters';
 import Email from 'next-auth/providers/email';
 import crypto from 'node:crypto';
 
-import db from './db';
-import { accounts, sessions, users, verificationTokens } from './schema';
+import db from '@/lib/db';
+import { accounts, sessions, users, verificationTokens } from '@/lib/schema';
+import { getAvatarUrl } from '@/lib/utils';
 
 // Adapter from https://github.com/nextauthjs/next-auth/blob/e3dd9f4ed158390ce79278f273d8ae559ba42078/packages/adapter-drizzle/src/mysql/index.ts
 const DrizzleAdapter = (): Adapter => ({
@@ -159,9 +160,6 @@ const DrizzleAdapter = (): Adapter => ({
   },
 });
 
-const md5 = (source: string) =>
-  crypto.createHash('md5').update(source).digest('hex');
-
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
@@ -187,8 +185,10 @@ export const authOptions: NextAuthOptions = {
         return session;
       }
 
-      const emailHash = md5(token.email);
-
+      const emailHash = crypto
+        .createHash('md5')
+        .update(token.email)
+        .digest('hex');
       const response = await fetch(`https://gravatar.com/${emailHash}.json`);
       const { entry } =
         response.status === 200 ? await response.json() : { entry: [{}] };
@@ -198,7 +198,7 @@ export const authOptions: NextAuthOptions = {
           id: token.uid,
           email: token.email,
           name: entry[0].displayName || token.email,
-          image: `https://gravatar.com/avatar/${emailHash}?d=identicon&s=64`,
+          image: getAvatarUrl(token.email),
         },
         expires: session.expires,
       };
