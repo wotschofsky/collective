@@ -32,7 +32,7 @@ export default function RootLayout({
               </a>
             </Button>
           </aside>
-          <main className="p-4 md:px-8">{children}</main>
+          <main className="container">{children}</main>
         </body>
       </html>
     </Providers>

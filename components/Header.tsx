@@ -22,8 +22,8 @@ const Header = () => {
   const session = useSession();
 
   return (
-    <header className="w-full p-4 md:px-8">
-      <div className="flex flex-col items-center justify-between pb-4 sm:flex-row">
+    <header className="mb-4">
+      <div className="container flex items-center justify-between py-4">
         <Link href="/">Collective</Link>
 
         {session.data ? (
