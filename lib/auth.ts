@@ -165,6 +165,10 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   adapter: DrizzleAdapter(),
+  pages: {
+    signIn: '/login',
+    verifyRequest: '/login/verify',
+  },
   providers: [
     Email({
       server: process.env.EMAIL_SERVER,

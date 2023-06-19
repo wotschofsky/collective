@@ -14,10 +14,7 @@ export default withAuth(
       }
 
       return NextResponse.redirect(
-        new URL(
-          `/api/auth/signin?callbackUrl=${encodeURIComponent(from)}`,
-          req.url
-        )
+        new URL(`/login?returnUrl=${encodeURIComponent(from)}`, req.url)
       );
     }
   },

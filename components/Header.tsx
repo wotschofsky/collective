@@ -1,8 +1,9 @@
 'use client';
 
 import { LogOutIcon, UserIcon } from 'lucide-react';
-import { signIn, signOut, useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +18,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const Header = () => {
+  const pathname = usePathname();
   const session = useSession();
 
   return (
@@ -45,8 +47,10 @@ const Header = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Button onClick={() => signIn('twitter')} variant="outline">
-            Login
+          <Button variant="outline" asChild>
+            <Link href={`/login?returnUrl=${encodeURIComponent(pathname)}`}>
+              Login
+            </Link>
           </Button>
         )}
       </div>
