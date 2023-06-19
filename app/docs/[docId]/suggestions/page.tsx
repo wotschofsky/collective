@@ -11,21 +11,21 @@ export const preferredRegion = 'home';
 
 type SuggestionsPageProps = {
   params: {
-    documentId: string;
+    docId: string;
   };
 };
 
 const SuggestionsPage: FC<SuggestionsPageProps> = async ({
-  params: { documentId },
+  params: { docId },
 }) => {
-  if (Number.isNaN(Number(documentId))) {
+  if (Number.isNaN(Number(docId))) {
     return null;
   }
 
   const suggestions = await db
     .select()
     .from(changeSuggestions)
-    .where(eq(changeSuggestions.documentId, Number(documentId)));
+    .where(eq(changeSuggestions.documentId, Number(docId)));
 
   return (
     <>
@@ -39,7 +39,7 @@ const SuggestionsPage: FC<SuggestionsPageProps> = async ({
               <span>{suggestion.title}</span>
             </div>
             <Button asChild>
-              <Link href={`/docs/${documentId}/suggestions/${suggestion.id}`}>
+              <Link href={`/docs/${docId}/suggestions/${suggestion.id}`}>
                 View
               </Link>
             </Button>

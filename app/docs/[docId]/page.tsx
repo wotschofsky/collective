@@ -12,15 +12,13 @@ export const preferredRegion = 'home';
 
 type DocumentPageProps = {
   params: {
-    documentId: string;
+    docId: string;
   };
 };
 
-const DocumentPage: FC<DocumentPageProps> = async ({
-  params: { documentId },
-}) => {
+const DocumentPage: FC<DocumentPageProps> = async ({ params: { docId } }) => {
   const document = await db.query.documents.findFirst({
-    where: eq(documents.id, Number(documentId)),
+    where: eq(documents.id, Number(docId)),
     with: {
       currentVersion: true,
     },

@@ -7,20 +7,20 @@ import db, { documents } from '@/lib/db';
 
 type DocumentPageLayoutProps = {
   params: {
-    documentId: string;
+    docId: string;
   };
   children: ReactNode;
 };
 
 const DocumentPageLayout: FC<DocumentPageLayoutProps> = async ({
-  params: { documentId },
+  params: { docId },
   children,
 }) => {
-  if (Number.isNaN(Number(documentId))) {
+  if (Number.isNaN(Number(docId))) {
     return notFound();
   }
   const document = await db.query.documents.findFirst({
-    where: eq(documents.id, Number(documentId)),
+    where: eq(documents.id, Number(docId)),
   });
 
   if (!document) {

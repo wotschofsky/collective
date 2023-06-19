@@ -11,15 +11,15 @@ export const preferredRegion = 'home';
 
 type DocumentBlamePageProps = {
   params: {
-    documentId: string;
+    docId: string;
   };
 };
 
 const DocumentBlamePage: FC<DocumentBlamePageProps> = async ({
-  params: { documentId },
+  params: { docId },
 }) => {
   const document = await db.query.documents.findFirst({
-    where: eq(documents.id, Number(documentId)),
+    where: eq(documents.id, Number(docId)),
     with: {
       currentVersion: {
         with: {

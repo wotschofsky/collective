@@ -15,7 +15,7 @@ const dmp = new DiffMainPatch();
 
 type DocumentEditPageProps = {
   params: {
-    documentId: string;
+    docId: string;
     suggestionId: string;
   };
 };
