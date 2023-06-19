@@ -22,6 +22,8 @@ export const users = mysqlTable('users', {
   image: varchar('image', { length: 255 }),
 });
 
+export type User = InferModel<typeof users>;
+
 export const userRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   sessions: many(sessions),
@@ -54,6 +56,8 @@ export const accounts = mysqlTable(
   })
 );
 
+export type Account = InferModel<typeof accounts>;
+
 export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(users, {
     fields: [accounts.userId],
@@ -68,6 +72,8 @@ export const sessions = mysqlTable('sessions', {
   userId: char('user_id', { length: 36 }).notNull(),
   expires: timestamp('expires', { mode: 'date' }).notNull(),
 });
+
+export type Session = InferModel<typeof sessions>;
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
@@ -90,6 +96,8 @@ export const verificationTokens = mysqlTable(
     ),
   })
 );
+
+export type VerificationToken = InferModel<typeof verificationTokens>;
 
 export const documents = mysqlTable('documents', {
   id: serial('id').primaryKey(),

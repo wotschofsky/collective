@@ -1,10 +1,10 @@
 import clsx from 'clsx';
-import { diffLines } from 'diff';
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import type { FC } from 'react';
 
-import db, { documents, DocumentVersion } from '@/lib/db';
+import { computeBlameMap } from '@/lib/blame';
+import db, { documents } from '@/lib/db';
 
 export const runtime = 'edge';
 export const preferredRegion = 'home';
@@ -22,8 +22,8 @@ const DocumentBlamePage: FC<DocumentBlamePageProps> = async ({
     where: eq(documents.id, Number(docId)),
     with: {
       currentVersion: {
-        with: {
-          author: true,
+        columns: {
+          content: true,
         },
       },
       allVersions: {
@@ -35,52 +35,14 @@ const DocumentBlamePage: FC<DocumentBlamePageProps> = async ({
     },
   });
 
-  if (!document?.currentVersion) {
+  if (!document?.currentVersionId || !document.currentVersion) {
     return notFound();
   }
 
-  const versions: typeof document.allVersions = [document.currentVersion];
-  let version = document.currentVersion;
-  while (true) {
-    const previousVersion = document.allVersions.find(
-      (v) => v.id === version.previousVersionId
-    );
-
-    if (!previousVersion) {
-      break;
-    }
-
-    versions.unshift(previousVersion);
-    version = previousVersion;
-  }
-
-  let blame: typeof document.allVersions = new Array(
-    versions[0].content.split('\n').length
-  ).fill(versions[0]);
-
-  for (let i = 1; i < versions.length; i++) {
-    console.log(versions[i - 1].description, versions[i].description);
-
-    const changes = diffLines(versions[i - 1].content, versions[i].content);
-
-    let position = 0;
-    for (const change of changes) {
-      if (change.removed) {
-        blame.splice(position, change.count);
-        continue;
-      }
-
-      if (change.added) {
-        const newLines = new Array(change.count).fill(versions[i]);
-        blame.splice(position, 0, ...newLines);
-        position += change.count!;
-        continue;
-      }
-
-      position += change.count!;
-    }
-  }
-
+  const blame = computeBlameMap(
+    document.allVersions,
+    document.currentVersionId
+  );
   const documentLines = document.currentVersion.content.split('\n');
 
   return (
