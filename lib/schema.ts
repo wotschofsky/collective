@@ -20,6 +20,9 @@ export const users = mysqlTable('users', {
   email: varchar('email', { length: 255 }).notNull(),
   emailVerified: timestamp('email_verified', { mode: 'date' }),
   image: varchar('image', { length: 255 }),
+  createdAt: datetime('created_at')
+    .notNull()
+    .default(sql`(NOW())`),
 });
 
 export type User = InferModel<typeof users>;
@@ -50,6 +53,9 @@ export const accounts = mysqlTable(
     scope: varchar('scope', { length: 255 }),
     id_token: varchar('id_token', { length: 255 }),
     session_state: varchar('session_state', { length: 255 }),
+    createdAt: datetime('created_at')
+      .notNull()
+      .default(sql`(NOW())`),
   },
   (accounts) => ({
     compoundKey: primaryKey(accounts.provider, accounts.providerAccountId),
@@ -102,6 +108,9 @@ export type VerificationToken = InferModel<typeof verificationTokens>;
 export const userWhitelists = mysqlTable('user_whitelists', {
   email: varchar('email', { length: 255 }).primaryKey(),
   invitedBy: char('invited_by', { length: 36 }).notNull(),
+  createdAt: datetime('created_at')
+    .notNull()
+    .default(sql`(NOW())`),
 });
 
 export type UserWhitelist = InferModel<typeof userWhitelists>;
@@ -112,6 +121,9 @@ export const documents = mysqlTable('documents', {
   description: varchar('description', { length: 1024 }).notNull(),
   ownerId: char('owner_id', { length: 36 }).notNull(),
   currentVersionId: int('current_version_id'),
+  createdAt: datetime('created_at')
+    .notNull()
+    .default(sql`(NOW())`),
 });
 
 export type Document = InferModel<typeof documents>;
@@ -136,7 +148,9 @@ export const documentVersion = mysqlTable('document_versions', {
   content: text('content').notNull(),
   authorId: char('author_id', { length: 36 }).notNull(),
   previousVersionId: int('previous_version_id'),
-  createdAt: datetime('created_at').notNull(),
+  createdAt: datetime('created_at')
+    .notNull()
+    .default(sql`(NOW())`),
 });
 
 export type DocumentVersion = InferModel<typeof documentVersion>;
@@ -170,7 +184,9 @@ export const proposals = mysqlTable('proposals', {
   content: text('content').notNull(),
   authorId: char('author_id', { length: 36 }).notNull(),
   baseVersionId: int('base_version_id').notNull(),
-  createdAt: datetime('created_at').notNull(),
+  createdAt: datetime('created_at')
+    .notNull()
+    .default(sql`(NOW())`),
 });
 
 export type Proposals = InferModel<typeof proposals>;
