@@ -1,5 +1,12 @@
 'use client';
 
+import {
+  Edit2Icon,
+  HistoryIcon,
+  MessageSquarePlusIcon,
+  TextIcon,
+  UserIcon,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useSelectedLayoutSegment } from 'next/navigation';
 import type { FC } from 'react';
@@ -19,10 +26,11 @@ const DocTabs: FC<DocTabsProps> = ({ docId }) => {
             href={`/docs/${docId}`}
             className={
               selectedSegment === null
-                ? 'inline-block rounded-t-lg border-b-2 border-primary p-4 text-primary'
-                : 'inline-block rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300'
+                ? 'flex items-center gap-2 rounded-t-lg border-b-2 border-primary p-4 text-primary'
+                : 'flex items-center gap-2 rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300'
             }
           >
+            <TextIcon className="inline h-5" />
             View
           </Link>
         </li>
@@ -31,11 +39,12 @@ const DocTabs: FC<DocTabsProps> = ({ docId }) => {
             href={`/docs/${docId}/blame`}
             className={
               selectedSegment === 'blame'
-                ? 'inline-block rounded-t-lg border-b-2 border-primary p-4 text-primary'
-                : 'inline-block rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300'
+                ? 'flex items-center gap-2 rounded-t-lg border-b-2 border-primary p-4 text-primary'
+                : 'flex items-center gap-2 rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300'
             }
             aria-current="page"
           >
+            <UserIcon className="inline h-5" />
             Blame
           </Link>
         </li>
@@ -44,11 +53,12 @@ const DocTabs: FC<DocTabsProps> = ({ docId }) => {
             href={`/docs/${docId}/changes`}
             className={
               selectedSegment === 'changes'
-                ? 'inline-block rounded-t-lg border-b-2 border-primary p-4 text-primary'
-                : 'inline-block rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300'
+                ? 'flex items-center gap-2 rounded-t-lg border-b-2 border-primary p-4 text-primary'
+                : 'flex items-center gap-2 rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300'
             }
             aria-current="page"
           >
+            <HistoryIcon className="inline h-5" />
             Changes
           </Link>
         </li>
@@ -57,11 +67,12 @@ const DocTabs: FC<DocTabsProps> = ({ docId }) => {
             href={`/docs/${docId}/proposals`}
             className={
               selectedSegment === 'proposals'
-                ? 'inline-block rounded-t-lg border-b-2 border-primary p-4 text-primary'
-                : 'inline-block rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300'
+                ? 'flex items-center gap-2 rounded-t-lg border-b-2 border-primary p-4 text-primary'
+                : 'flex items-center gap-2 rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300'
             }
             aria-current="page"
           >
+            <MessageSquarePlusIcon className="inline h-5" />
             Proposals
           </Link>
         </li>
@@ -70,11 +81,12 @@ const DocTabs: FC<DocTabsProps> = ({ docId }) => {
             href={`/docs/${docId}/edit`}
             className={
               selectedSegment === 'edit'
-                ? 'inline-block rounded-t-lg border-b-2 border-primary p-4 text-primary'
-                : 'inline-block rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300'
+                ? 'flex items-center gap-2 rounded-t-lg border-b-2 border-primary p-4 text-primary'
+                : 'flex items-center gap-2 rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300'
             }
             aria-current="page"
           >
+            <Edit2Icon className="inline h-5" />
             Edit
           </Link>
         </li>
