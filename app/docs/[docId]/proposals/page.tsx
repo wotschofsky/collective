@@ -1,10 +1,13 @@
 import { eq } from 'drizzle-orm';
+import { CheckCircle2Icon, CircleDotIcon, XCircleIcon } from 'lucide-react';
 import Link from 'next/link';
 import type { FC } from 'react';
 
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import db, { proposals } from '@/lib/db';
+import { getAvatarUrl } from '@/lib/utils';
 
 export const runtime = 'edge';
 export const preferredRegion = 'home';
@@ -20,26 +23,48 @@ const ProposalsPage: FC<ProposalsPageProps> = async ({ params: { docId } }) => {
     return null;
   }
 
-  const shownProposals = await db
-    .select()
-    .from(proposals)
-    .where(eq(proposals.documentId, Number(docId)));
+  const shownProposals = await db.query.proposals.findMany({
+    where: eq(proposals.documentId, Number(docId)),
+    with: {
+      author: {
+        columns: {
+          email: true,
+        },
+      },
+    },
+  });
 
   return (
     <>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
         {shownProposals.map((proposal) => (
-          <Card key={proposal.id} className="flex w-full items-center p-4">
-            <div className="flex-1">
-              <span className="mr-2 inline-block rounded-2xl bg-slate-800 px-3 py-1.5 text-sm text-white">
-                {proposal.status.toUpperCase()}
-              </span>
-              <span>{proposal.title}</span>
-            </div>
-            <Button asChild>
-              <Link href={`/docs/${docId}/proposals/${proposal.id}`}>View</Link>
-            </Button>
-          </Card>
+          <Link
+            key={proposal.id}
+            href={`/docs/${docId}/proposals/${proposal.id}`}
+          >
+            <Card className="flex gap-2 px-4 py-2 transition-colors hover:bg-slate-50">
+              {proposal.status === 'approved' && (
+                <CheckCircle2Icon className="w-5 text-purple-600" />
+              )}
+              {proposal.status === 'closed' && (
+                <XCircleIcon className="w-5 text-gray-500" />
+              )}
+              {proposal.status === 'open' && (
+                <CircleDotIcon className="w-5 text-green-600" />
+              )}
+              <div>
+                <p>{proposal.title}</p>
+                <div className="mt-1 flex items-center gap-2">
+                  <Avatar className="h-5 w-5 cursor-pointer">
+                    <AvatarImage src={getAvatarUrl(proposal.author.email)} />
+                  </Avatar>
+                  <span className="text-sm text-gray-500">
+                    {proposal.createdAt.toDateString()}
+                  </span>
+                </div>
+              </div>
+            </Card>
+          </Link>
         ))}
 
         {shownProposals.length === 0 && (

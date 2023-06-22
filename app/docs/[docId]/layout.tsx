@@ -29,7 +29,7 @@ const DocumentPageLayout: FC<DocumentPageLayoutProps> = async ({
 
   return (
     <>
-      <h1 className="mb-6 text-2xl">{document.name}</h1>
+      <h1 className="mb-6 text-3xl font-medium">{document.name}</h1>
       <DocTabs docId={document.id.toString()} />
       {children}
     </>

@@ -40,14 +40,15 @@ const ChangesListPage: FC<ChangesListPageProps> = async ({
       <div className="flex flex-col gap-2">
         {versions.map((version) => (
           <Link key={version.id} href={`/docs/${docId}/changes/${version.id}`}>
-            <Card className="flex items-center gap-4 p-3">
-              <Avatar className="cursor-pointer">
-                <AvatarImage src={getAvatarUrl(version.author.email)} />
-              </Avatar>
-
-              <div className="flex flex-col">
-                <span>{version.description}</span>
-                <span>{version.createdAt.toDateString()}</span>
+            <Card className="px-4 py-2 transition-colors hover:bg-slate-50">
+              <p>{version.description}</p>
+              <div className="mt-1 flex items-center gap-2">
+                <Avatar className="h-5 w-5 cursor-pointer">
+                  <AvatarImage src={getAvatarUrl(version.author.email)} />
+                </Avatar>
+                <span className="text-sm text-gray-500">
+                  {version.createdAt.toDateString()}
+                </span>
               </div>
             </Card>
           </Link>
