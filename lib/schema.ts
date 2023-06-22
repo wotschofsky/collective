@@ -101,7 +101,10 @@ export type VerificationToken = InferModel<typeof verificationTokens>;
 
 export const userWhitelists = mysqlTable('user_whitelists', {
   email: varchar('email', { length: 255 }).primaryKey(),
+  invitedBy: char('invited_by', { length: 36 }).notNull(),
 });
+
+export type UserWhitelist = InferModel<typeof userWhitelists>;
 
 export const documents = mysqlTable('documents', {
   id: serial('id').primaryKey(),

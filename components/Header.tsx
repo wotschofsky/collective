@@ -1,13 +1,22 @@
 'use client';
 
 import clsx from 'clsx';
-import { LogOutIcon, UserIcon } from 'lucide-react';
+import { LogOutIcon, UserIcon, UserPlusIcon } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { EB_Garamond } from 'next/font/google';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { type FormEventHandler, useCallback, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +25,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
@@ -24,6 +35,38 @@ const ebGaramond = EB_Garamond({ subsets: ['latin'], weight: '600' });
 const Header = () => {
   const pathname = usePathname();
   const session = useSession();
+
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const handleInvite = useCallback<FormEventHandler<HTMLFormElement>>(
+    async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(event.currentTarget);
+
+      setInviteOpen(false);
+
+      try {
+        const response = await fetch('/api/invite', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.get('email'),
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('An error occurred!');
+        }
+
+        alert('User added to whitelist!');
+      } catch (error) {
+        alert('An error occurred!');
+      }
+    },
+    []
+  );
 
   return (
     <header className="mb-4">
@@ -49,6 +92,10 @@ const Header = () => {
                 <span>{session.data.user?.name}</span>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setInviteOpen(true)}>
+                <UserPlusIcon className="mr-2 h-4 w-4" />
+                <span>Invite User</span>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => signOut()}>
                 <LogOutIcon className="mr-2 h-4 w-4" />
                 <span>Sign Out</span>
@@ -72,6 +119,35 @@ const Header = () => {
             </Button>
           </div>
         )}
+
+        <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Invite User</DialogTitle>
+              <DialogDescription>
+                Invite another user to allow them to join Collective!
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleInvite}>
+              <div className="mb-4 grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="email" className="text-right">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  placeholder="them@example.com"
+                  className="col-span-3"
+                  required
+                  type="email"
+                />
+              </div>
+              <DialogFooter>
+                <Button type="submit">Invite</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </header>
   );
