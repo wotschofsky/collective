@@ -27,7 +27,7 @@ const Header = () => {
 
   return (
     <header className="mb-4">
-      <div className="container flex items-center justify-between py-4">
+      <div className="container flex items-center justify-between py-8">
         <Link
           href="/"
           className={clsx(ebGaramond.className, 'text-xl font-semibold')}
