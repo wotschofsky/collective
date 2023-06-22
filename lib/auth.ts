@@ -5,7 +5,13 @@ import Email from 'next-auth/providers/email';
 import crypto from 'node:crypto';
 
 import db from '@/lib/db';
-import { accounts, sessions, users, verificationTokens } from '@/lib/schema';
+import {
+  accounts,
+  sessions,
+  users,
+  userWhitelists,
+  verificationTokens,
+} from '@/lib/schema';
 import { getAvatarUrl } from '@/lib/utils';
 
 // Adapter from https://github.com/nextauthjs/next-auth/blob/e3dd9f4ed158390ce79278f273d8ae559ba42078/packages/adapter-drizzle/src/mysql/index.ts
@@ -176,7 +182,21 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    jwt: async ({ user, token }) => {
+    async signIn({ user }) {
+      if (!user.email) {
+        return false;
+      }
+
+      const isOnWhitelist = await db
+        .select()
+        .from(userWhitelists)
+        .where(eq(userWhitelists.email, user.email.toLowerCase()))
+        .limit(1)
+        .then((result) => result.length > 0);
+
+      return isOnWhitelist;
+    },
+    async jwt({ user, token }) {
       if (user) {
         token.uid = user.id;
         token.name = user.name || user.email;
@@ -184,7 +204,7 @@ export const authOptions: NextAuthOptions = {
 
       return token;
     },
-    session: async ({ session, token }) => {
+    async session({ session, token }) {
       if (!token.email) {
         return session;
       }
