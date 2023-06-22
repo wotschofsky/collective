@@ -22,16 +22,6 @@ export default function RootLayout({
       <html lang="en">
         <body className={inter.className}>
           <Header />
-          <aside className="mb-8 flex justify-center bg-gray-200 px-4 py-12">
-            <Button asChild>
-              <a
-                href="https://whfbt68b5e1.typeform.com/to/jpHpDMjC"
-                target="_blank"
-              >
-                Join Waitlist
-              </a>
-            </Button>
-          </aside>
           <main className="container">{children}</main>
         </body>
       </html>

@@ -56,11 +56,21 @@ const Header = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Button variant="outline" asChild>
-            <Link href={`/login?returnUrl=${encodeURIComponent(pathname)}`}>
-              Login
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild>
+              <a
+                href="https://whfbt68b5e1.typeform.com/to/jpHpDMjC"
+                target="_blank"
+              >
+                Join Waitlist
+              </a>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href={`/login?returnUrl=${encodeURIComponent(pathname)}`}>
+                Login
+              </Link>
+            </Button>
+          </div>
         )}
       </div>
     </header>
