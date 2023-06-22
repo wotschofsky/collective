@@ -1,11 +1,11 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import type { FC } from 'react';
 
+import BlockEditor from '@/components/editor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { authOptions } from '@/lib/auth';
 import db, { documents, documentVersion } from '@/lib/db';
 
@@ -57,31 +57,17 @@ const NewDocumentPage: FC<Record<never, never>> = () => {
   }
 
   return (
-    <>
-      <div className="flex justify-center">
-        <form action={save} className="w-full max-w-xl">
-          <Input
-            name="name"
-            className="mb-4"
-            placeholder="Document Name"
-            required
-          />
-          <Input
-            name="description"
-            className="mb-4"
-            placeholder="Description"
-          />
-          <Textarea
-            name="content"
-            className="mb-4"
-            placeholder="Document Contents"
-            rows={20}
-            required
-          ></Textarea>
-          <Button type="submit">Create Document</Button>
-        </form>
-      </div>
-    </>
+    <form action={save}>
+      <Input
+        name="name"
+        className="mb-4"
+        placeholder="Document Name"
+        required
+      />
+      <Input name="description" className="mb-4" placeholder="Description" />
+      <BlockEditor name="content" />
+      <Button type="submit">Create Document</Button>
+    </form>
   );
 };
 
