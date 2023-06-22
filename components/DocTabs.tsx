@@ -54,15 +54,15 @@ const DocTabs: FC<DocTabsProps> = ({ docId }) => {
         </li>
         <li className="mr-2">
           <Link
-            href={`/docs/${docId}/suggestions`}
+            href={`/docs/${docId}/proposals`}
             className={
-              selectedSegment === 'suggestions'
+              selectedSegment === 'proposals'
                 ? 'inline-block rounded-t-lg border-b-2 border-primary p-4 text-primary'
                 : 'inline-block rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300'
             }
             aria-current="page"
           >
-            Suggestions
+            Proposals
           </Link>
         </li>
         <li className="mr-2">

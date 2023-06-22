@@ -29,7 +29,7 @@ export const userRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   documents: many(documents),
   documentVersions: many(documentVersion),
-  changeSuggestions: many(changeSuggestions),
+  proposals: many(proposals),
 }));
 
 export const accounts = mysqlTable(
@@ -110,7 +110,7 @@ export const documents = mysqlTable('documents', {
 export type Document = InferModel<typeof documents>;
 
 export const documentsRelations = relations(documents, ({ many, one }) => ({
-  suggestions: many(changeSuggestions),
+  proposals: many(proposals),
   owner: one(users, {
     fields: [documents.ownerId],
     references: [users.id],
@@ -152,7 +152,7 @@ export const documentVersionRelations = relations(
   })
 );
 
-export const changeSuggestions = mysqlTable('change_suggestions', {
+export const proposals = mysqlTable('proposals', {
   id: serial('id').primaryKey(),
   title: varchar('title', { length: 256 }).notNull(),
   description: varchar('description', { length: 1024 }).notNull(),
@@ -166,22 +166,19 @@ export const changeSuggestions = mysqlTable('change_suggestions', {
   createdAt: datetime('created_at').notNull(),
 });
 
-export type ChangeSuggestion = InferModel<typeof changeSuggestions>;
+export type Proposals = InferModel<typeof proposals>;
 
-export const changeSuggestionsRelations = relations(
-  changeSuggestions,
-  ({ one }) => ({
-    document: one(documents, {
-      fields: [changeSuggestions.documentId],
-      references: [documents.id],
-    }),
-    author: one(users, {
-      fields: [changeSuggestions.authorId],
-      references: [users.id],
-    }),
-    baseVersion: one(documentVersion, {
-      fields: [changeSuggestions.baseVersionId],
-      references: [documentVersion.id],
-    }),
-  })
-);
+export const proposalsRelations = relations(proposals, ({ one }) => ({
+  document: one(documents, {
+    fields: [proposals.documentId],
+    references: [documents.id],
+  }),
+  author: one(users, {
+    fields: [proposals.authorId],
+    references: [users.id],
+  }),
+  baseVersion: one(documentVersion, {
+    fields: [proposals.baseVersionId],
+    references: [documentVersion.id],
+  }),
+}));

@@ -8,7 +8,7 @@ import BlockEditor from '@/components/editor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authOptions } from '@/lib/auth';
-import db, { changeSuggestions, documents } from '@/lib/db';
+import db, { documents, proposals } from '@/lib/db';
 
 type DocumentPageProps = {
   params: {
@@ -50,7 +50,7 @@ const DocumentPage: FC<DocumentPageProps> = async ({ params: { docId } }) => {
       return;
     }
 
-    const suggestion = await db.insert(changeSuggestions).values({
+    const proposal = await db.insert(proposals).values({
       title: title,
       documentId: document.id,
       description: description || '',
@@ -60,8 +60,8 @@ const DocumentPage: FC<DocumentPageProps> = async ({ params: { docId } }) => {
       createdAt: new Date(),
     });
 
-    revalidatePath(`/docs/${document!.id}/suggestions`);
-    redirect(`/docs/${document!.id}/suggestions/${suggestion.insertId}`);
+    revalidatePath(`/docs/${document!.id}/proposals`);
+    redirect(`/docs/${document!.id}/proposals/${proposal.insertId}`);
   }
 
   async function deleteDoc() {
@@ -86,8 +86,7 @@ const DocumentPage: FC<DocumentPageProps> = async ({ params: { docId } }) => {
     <>
       <form action={save}>
         <p className="mb-8">
-          Modify the selected document below and submit it as a suggestion for
-          changes
+          Modify the selected document below and submit it as a proposal
         </p>
 
         <Input name="title" className="mb-4" placeholder="Title" required />
@@ -100,7 +99,7 @@ const DocumentPage: FC<DocumentPageProps> = async ({ params: { docId } }) => {
           name="content"
           initialContent={document.currentVersion?.content}
         />
-        <Button type="submit">Suggest Changes</Button>
+        <Button type="submit">Propose Changes</Button>
       </form>
 
       {session?.user?.id === document.ownerId && (

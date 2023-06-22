@@ -9,28 +9,28 @@ import type { FC, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { authOptions } from '@/lib/auth';
 import db from '@/lib/db';
-import { changeSuggestions, documents, documentVersion } from '@/lib/schema';
+import { documents, documentVersion, proposals } from '@/lib/schema';
 
 const dmp = new DiffMainPatch();
 
 type DocumentEditPageProps = {
   params: {
     docId: string;
-    suggestionId: string;
+    proposalId: string;
   };
 };
 
 const DocumentEditPage: FC<DocumentEditPageProps> = async ({
-  params: { suggestionId },
+  params: { proposalId },
 }: DocumentEditPageProps) => {
-  if (Number.isNaN(Number(suggestionId))) {
+  if (Number.isNaN(Number(proposalId))) {
     return notFound();
   }
 
   const session = await getServerSession(authOptions);
 
-  const suggestion = await db.query.changeSuggestions.findFirst({
-    where: eq(changeSuggestions.id, Number(suggestionId)),
+  const proposal = await db.query.proposals.findFirst({
+    where: eq(proposals.id, Number(proposalId)),
     with: {
       baseVersion: true,
       document: {
@@ -41,13 +41,13 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
     },
   });
 
-  if (!suggestion) {
+  if (!proposal) {
     return notFound();
   }
 
   const changes = Diff.diffChars(
-    suggestion.baseVersion.content,
-    suggestion.content
+    proposal.baseVersion.content,
+    proposal.content
   );
 
   let originalText: ReactNode[] = [];
@@ -71,8 +71,8 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
   async function handleApprove() {
     'use server';
 
-    const suggestion = await db.query.changeSuggestions.findFirst({
-      where: eq(changeSuggestions.id, Number(suggestionId)),
+    const proposal = await db.query.proposals.findFirst({
+      where: eq(proposals.id, Number(proposalId)),
       with: {
         baseVersion: true,
         document: {
@@ -83,36 +83,33 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
       },
     });
 
-    if (!suggestion || suggestion.status !== 'open') {
-      throw new Error('Suggestion not found');
+    if (!proposal || proposal.status !== 'open') {
+      throw new Error('Proposal not found');
     }
 
-    if (!suggestion.document.currentVersion) {
+    if (!proposal.document.currentVersion) {
       throw new Error('Document version not found');
     }
 
     const session = await getServerSession(authOptions);
-    if (session?.user?.id !== suggestion.document.ownerId) {
+    if (session?.user?.id !== proposal.document.ownerId) {
       throw new Error('Unauthorized');
     }
 
-    const diffs = dmp.diff_main(
-      suggestion.baseVersion.content,
-      suggestion.content
-    );
-    const patches = dmp.patch_make(suggestion.baseVersion.content, diffs);
+    const diffs = dmp.diff_main(proposal.baseVersion.content, proposal.content);
+    const patches = dmp.patch_make(proposal.baseVersion.content, diffs);
     const [mergedContent, _] = dmp.patch_apply(
       patches,
-      suggestion.document.currentVersion.content
+      proposal.document.currentVersion.content
     );
 
     await db.transaction(async (tx) => {
       const newVersion = await tx.insert(documentVersion).values({
-        documentId: suggestion.documentId,
-        description: suggestion.title,
+        documentId: proposal.documentId,
+        description: proposal.title,
         content: mergedContent,
-        authorId: suggestion.authorId,
-        previousVersionId: suggestion.document.currentVersionId,
+        authorId: proposal.authorId,
+        previousVersionId: proposal.document.currentVersionId,
         createdAt: new Date(),
       });
       await tx
@@ -120,27 +117,25 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
         .set({
           currentVersionId: Number(newVersion.insertId),
         })
-        .where(eq(documents.id, suggestion.documentId));
+        .where(eq(documents.id, proposal.documentId));
       await tx
-        .update(changeSuggestions)
+        .update(proposals)
         .set({
           status: 'approved',
         })
-        .where(eq(changeSuggestions.id, suggestion.id));
+        .where(eq(proposals.id, proposal.id));
     });
 
-    revalidatePath(`/docs/${suggestion.documentId}`);
-    revalidatePath(`/docs/${suggestion.documentId}/suggestions`);
-    revalidatePath(
-      `/docs/${suggestion.documentId}/suggestions/${suggestion.id}`
-    );
+    revalidatePath(`/docs/${proposal.documentId}`);
+    revalidatePath(`/docs/${proposal.documentId}/proposals`);
+    revalidatePath(`/docs/${proposal.documentId}/proposals/${proposal.id}`);
   }
 
   async function handleReject() {
     'use server';
 
-    const suggestion = await db.query.changeSuggestions.findFirst({
-      where: eq(changeSuggestions.id, Number(suggestionId)),
+    const proposal = await db.query.proposals.findFirst({
+      where: eq(proposals.id, Number(proposalId)),
       with: {
         document: {
           columns: {
@@ -150,43 +145,41 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
       },
     });
 
-    if (!suggestion || suggestion.status !== 'open') {
-      throw new Error('Suggestion not found');
+    if (!proposal || proposal.status !== 'open') {
+      throw new Error('Proposal not found');
     }
 
     const session = await getServerSession(authOptions);
-    if (session?.user?.id !== suggestion.document.ownerId) {
+    if (session?.user?.id !== proposal.document.ownerId) {
       throw new Error('Unauthorized');
     }
 
     await db
-      .update(changeSuggestions)
+      .update(proposals)
       .set({
         status: 'closed',
       })
-      .where(eq(changeSuggestions.id, suggestion.id));
+      .where(eq(proposals.id, proposal.id));
 
-    revalidatePath(`/docs/${suggestion.documentId}/suggestions`);
-    revalidatePath(
-      `/docs/${suggestion.documentId}/suggestions/${suggestion.id}`
-    );
+    revalidatePath(`/docs/${proposal.documentId}/proposals`);
+    revalidatePath(`/docs/${proposal.documentId}/proposals/${proposal.id}`);
   }
 
   return (
     <>
       <div className="mb-4">
         <span className="mr-2 inline-block rounded-2xl bg-slate-800 px-3 py-1.5 text-sm text-white">
-          {suggestion.status.toUpperCase()}
+          {proposal.status.toUpperCase()}
         </span>
-        <h2 className="inline text-xl">{suggestion.title}</h2>
+        <h2 className="inline text-xl">{proposal.title}</h2>
       </div>
 
       <div className="flex items-start gap-4">
         <p className="flex-1 whitespace-pre-wrap">{originalText}</p>
         <p className="flex-1 whitespace-pre-wrap">{newText}</p>
       </div>
-      {suggestion.status === 'open' &&
-        session?.user?.id === suggestion.document.ownerId && (
+      {proposal.status === 'open' &&
+        session?.user?.id === proposal.document.ownerId && (
           <form className="mt-8 flex gap-2">
             <Button formAction={handleApprove}>Approve</Button>
             <Button formAction={handleReject} variant="outline">
