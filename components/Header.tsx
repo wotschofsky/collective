@@ -1,7 +1,9 @@
 'use client';
 
+import clsx from 'clsx';
 import { LogOutIcon, UserIcon } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
+import { EB_Garamond } from 'next/font/google';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -17,6 +19,8 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
+const ebGaramond = EB_Garamond({ subsets: ['latin'], weight: '600' });
+
 const Header = () => {
   const pathname = usePathname();
   const session = useSession();
@@ -24,7 +28,12 @@ const Header = () => {
   return (
     <header className="mb-4">
       <div className="container flex items-center justify-between py-4">
-        <Link href="/">Collective</Link>
+        <Link
+          href="/"
+          className={clsx(ebGaramond.className, 'text-xl font-semibold')}
+        >
+          Collective
+        </Link>
 
         {session.data ? (
           <DropdownMenu>
