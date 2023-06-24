@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, or } from 'drizzle-orm';
 import type { NextAuthOptions } from 'next-auth';
 import type { Adapter } from 'next-auth/adapters';
 import Email from 'next-auth/providers/email';
@@ -190,7 +190,12 @@ export const authOptions: NextAuthOptions = {
       const isOnWhitelist = await db
         .select()
         .from(userWhitelists)
-        .where(eq(userWhitelists.email, user.email.toLowerCase()))
+        .where(
+          or(
+            eq(userWhitelists.email, user.email.toLowerCase()),
+            eq(userWhitelists.email, user.email.split('@')[1].toLowerCase())
+          )
+        )
         .limit(1)
         .then((result) => result.length > 0);
 
