@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { GithubIcon, LogOutIcon, UserIcon, UserPlusIcon } from 'lucide-react';
+import { GithubIcon, LogOutIcon, UserPlusIcon } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { EB_Garamond } from 'next/font/google';
 import Link from 'next/link';
@@ -98,7 +98,6 @@ const Header = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>
-                  <UserIcon className="mr-2 h-4 w-4" />
                   <span>{session.data.user?.name}</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
