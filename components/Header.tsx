@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { LogOutIcon, UserIcon, UserPlusIcon } from 'lucide-react';
+import { GithubIcon, LogOutIcon, UserIcon, UserPlusIcon } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { EB_Garamond } from 'next/font/google';
 import Link from 'next/link';
@@ -77,48 +77,59 @@ const Header = () => {
         >
           Collective
         </Link>
+        <div className="flex gap-2">
+          <Button variant="ghost" asChild>
+            <a
+              href="https://github.com/feliskio/collective"
+              target="_blank"
+              rel="noopener"
+            >
+              <GithubIcon className="h-6 w-6" />
+            </a>
+          </Button>
 
-        {session.data ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Avatar className="cursor-pointer">
-                <AvatarImage src={session.data.user?.image ?? ''} />
-                <AvatarFallback>{session.data.user?.name}</AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>
-                <UserIcon className="mr-2 h-4 w-4" />
-                <span>{session.data.user?.name}</span>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setInviteOpen(true)}>
-                <UserPlusIcon className="mr-2 h-4 w-4" />
-                <span>Invite User</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => signOut()}>
-                <LogOutIcon className="mr-2 h-4 w-4" />
-                <span>Sign Out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <div className="flex gap-2">
-            <Button asChild>
-              <a
-                href="https://whfbt68b5e1.typeform.com/to/jpHpDMjC"
-                target="_blank"
-              >
-                Join Waitlist
-              </a>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href={`/login?returnUrl=${encodeURIComponent(pathname)}`}>
-                Login
-              </Link>
-            </Button>
-          </div>
-        )}
+          {session.data ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="cursor-pointer">
+                  <AvatarImage src={session.data.user?.image ?? ''} />
+                  <AvatarFallback>{session.data.user?.name}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  <UserIcon className="mr-2 h-4 w-4" />
+                  <span>{session.data.user?.name}</span>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setInviteOpen(true)}>
+                  <UserPlusIcon className="mr-2 h-4 w-4" />
+                  <span>Invite User</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => signOut()}>
+                  <LogOutIcon className="mr-2 h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button asChild>
+                <a
+                  href="https://whfbt68b5e1.typeform.com/to/jpHpDMjC"
+                  target="_blank"
+                >
+                  Join Waitlist
+                </a>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href={`/login?returnUrl=${encodeURIComponent(pathname)}`}>
+                  Login
+                </Link>
+              </Button>
+            </>
+          )}
+        </div>
 
         <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
           <DialogContent className="sm:max-w-[425px]">
