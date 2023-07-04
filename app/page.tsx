@@ -17,6 +17,15 @@ export default async function Home() {
       currentVersion: true,
     },
   });
+  // TODO move to db query if possible
+  const sortedDocuments = documents.sort((a, b) => {
+    if (!a.currentVersion) return 1;
+    if (!b.currentVersion) return -1;
+    return (
+      b.currentVersion.createdAt.getTime() -
+      a.currentVersion.createdAt.getTime()
+    );
+  });
 
   return (
     <>
@@ -28,7 +37,7 @@ export default async function Home() {
       </div>
 
       <div className="flex flex-wrap gap-6">
-        {documents.map((doc) => (
+        {sortedDocuments.map((doc) => (
           <div key={doc.id} className="w-72">
             <Link href={`/docs/${doc.id}`}>
               <Card className="p-4">
@@ -51,7 +60,7 @@ export default async function Home() {
             )}
           </div>
         ))}
-        {documents.length === 0 && (
+        {sortedDocuments.length === 0 && (
           <p className="mt-16 flex-1 text-center">No documents yet.</p>
         )}
       </div>
