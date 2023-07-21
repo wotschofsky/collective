@@ -80,7 +80,7 @@ const Header = () => {
         <div className="flex gap-2">
           <Button variant="ghost" asChild>
             <a
-              href="https://github.com/feliskio/collective"
+              href="https://github.com/wotschofsky/collective"
               target="_blank"
               rel="noopener"
             >
