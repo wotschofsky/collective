@@ -52,7 +52,7 @@ const ChangesDetailsPage: FC<ChangesDetailsPageProps> = async ({
 
   const changes = Diff.diffChars(
     version.previousVersion.content,
-    version.content
+    version.content,
   );
 
   let originalText: ReactNode[] = [];

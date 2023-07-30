@@ -59,7 +59,7 @@ export const accounts = mysqlTable(
   },
   (accounts) => ({
     compoundKey: primaryKey(accounts.provider, accounts.providerAccountId),
-  })
+  }),
 );
 
 export type Account = InferModel<typeof accounts>;
@@ -98,9 +98,9 @@ export const verificationTokens = mysqlTable(
   (verificationTokens) => ({
     compoundKey: primaryKey(
       verificationTokens.identifier,
-      verificationTokens.token
+      verificationTokens.token,
     ),
-  })
+  }),
 );
 
 export type VerificationToken = InferModel<typeof verificationTokens>;
@@ -170,7 +170,7 @@ export const documentVersionRelations = relations(
       fields: [documentVersion.previousVersionId],
       references: [documentVersion.id],
     }),
-  })
+  }),
 );
 
 export const proposals = mysqlTable('proposals', {

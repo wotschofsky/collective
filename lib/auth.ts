@@ -101,8 +101,8 @@ const DrizzleAdapter = (): Adapter => ({
       .where(
         and(
           eq(accounts.providerAccountId, account.providerAccountId),
-          eq(accounts.provider, account.provider)
-        )
+          eq(accounts.provider, account.provider),
+        ),
       )
       .leftJoin(users, eq(accounts.userId, users.id))
       .then((res) => res[0]);
@@ -130,8 +130,8 @@ const DrizzleAdapter = (): Adapter => ({
           .where(
             and(
               eq(verificationTokens.identifier, token.identifier),
-              eq(verificationTokens.token, token.token)
-            )
+              eq(verificationTokens.token, token.token),
+            ),
           )
           .then((res) => res[0])) ?? null;
 
@@ -140,8 +140,8 @@ const DrizzleAdapter = (): Adapter => ({
         .where(
           and(
             eq(verificationTokens.identifier, token.identifier),
-            eq(verificationTokens.token, token.token)
-          )
+            eq(verificationTokens.token, token.token),
+          ),
         );
 
       return deletedToken;
@@ -158,8 +158,8 @@ const DrizzleAdapter = (): Adapter => ({
       .where(
         and(
           eq(accounts.providerAccountId, account.providerAccountId),
-          eq(accounts.provider, account.provider)
-        )
+          eq(accounts.provider, account.provider),
+        ),
       );
 
     return undefined;
@@ -193,8 +193,8 @@ export const authOptions: NextAuthOptions = {
         .where(
           or(
             eq(userWhitelists.email, user.email.toLowerCase()),
-            eq(userWhitelists.email, user.email.split('@')[1].toLowerCase())
-          )
+            eq(userWhitelists.email, user.email.split('@')[1].toLowerCase()),
+          ),
         )
         .limit(1)
         .then((result) => result.length > 0);

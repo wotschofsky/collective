@@ -47,7 +47,7 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
 
   const changes = Diff.diffChars(
     proposal.baseVersion.content,
-    proposal.content
+    proposal.content,
   );
 
   let originalText: ReactNode[] = [];
@@ -100,7 +100,7 @@ const DocumentEditPage: FC<DocumentEditPageProps> = async ({
     const patches = dmp.patch_make(proposal.baseVersion.content, diffs);
     const [mergedContent, _] = dmp.patch_apply(
       patches,
-      proposal.document.currentVersion.content
+      proposal.document.currentVersion.content,
     );
 
     await db.transaction(async (tx) => {

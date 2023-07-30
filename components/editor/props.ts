@@ -33,8 +33,8 @@ export const TiptapEditorProps: EditorProps = {
             view.state.tr.replaceSelectionWith(
               view.state.schema.nodes.image.create({
                 src: img.src,
-              })
-            )
+              }),
+            ),
           );
         };
         reader.readAsDataURL(file);

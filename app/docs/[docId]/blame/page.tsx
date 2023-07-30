@@ -41,7 +41,7 @@ const DocumentBlamePage: FC<DocumentBlamePageProps> = async ({
 
   const blame = computeBlameMap(
     document.allVersions,
-    document.currentVersionId
+    document.currentVersionId,
   );
   const documentLines = document.currentVersion.content.split('\n');
 

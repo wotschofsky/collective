@@ -65,7 +65,7 @@ const Header = () => {
         alert('An error occurred!');
       }
     },
-    []
+    [],
   );
 
   return (

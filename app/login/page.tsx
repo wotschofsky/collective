@@ -34,7 +34,7 @@ const LoginPage: FC<{}> = () => {
       if (!isWhitelisted) {
         setLoading(false);
         toast(
-          'You are currently not whitelisted. Please join the waitlist and we will reach out to you shortly!'
+          'You are currently not whitelisted. Please join the waitlist and we will reach out to you shortly!',
         );
         return;
       }
@@ -48,7 +48,7 @@ const LoginPage: FC<{}> = () => {
         setLoading(false);
       }
     },
-    [searchParams]
+    [searchParams],
   );
 
   return (

@@ -191,7 +191,7 @@ const CommandList = ({
         command(item);
       }
     },
-    [command, items]
+    [command, items],
   );
 
   useEffect(() => {

@@ -44,7 +44,7 @@ const DocumentPage: FC<DocumentPageProps> = async ({ params: { docId } }) => {
 
   const blame = computeBlameMap(
     document.allVersions,
-    document.currentVersionId
+    document.currentVersionId,
   );
 
   const lineStyles = Object.entries(blame)

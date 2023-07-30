@@ -11,8 +11,8 @@ export const getWhitelistStatus = (email: string) =>
     .where(
       or(
         eq(userWhitelists.email, email.toLowerCase()),
-        eq(userWhitelists.email, email.split('@')[1].toLowerCase())
-      )
+        eq(userWhitelists.email, email.split('@')[1].toLowerCase()),
+      ),
     )
     .limit(1)
     .then((result) => result.length > 0);
